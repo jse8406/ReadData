@@ -1,0 +1,15 @@
+h4{
+    text-align: center;
+}
+.item{
+    overflow: auto;
+    float: left;
+}
+span{
+    display: flex;
+    float: left;
+}
+.table{
+    display: flex;
+    flex-direction: column;
+}
