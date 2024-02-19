@@ -31,5 +31,3 @@ function change88(){
         count += 1;
     }
 }
-
-

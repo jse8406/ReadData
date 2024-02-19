@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="style.css" rel="stylesheet" type="text/css" />
-    <script src="control.js"></script>
-    <title>Dashboard</title>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="style.css" rel="stylesheet" type="text/css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+        <title>Dashboard</title>
 </head>
-<body>
+<body>   
     <button onclick="change80()">물품</button>
     <button onclick="change88()">용역</button>
     <h2 style="margin-left: 750px;">물품</h2>
@@ -18,8 +18,9 @@
                 <img src="./images/2020amt.png" width="600px" height="200px">
             </span>
         <img src="./images/2020pre.png">
-        <img src="./images/2020prepercent.png">
-        <img src="./images/2020amtpercent.png" width="600px" height="200px" style="margin-top: 100px;">
+    <canvas id="myChart" style="width:100%;max-width:900px;height: 500px;"></canvas>
+
+        <!-- <img src="./images/2020amtpercent.png" width="600px" height="200px" style="margin-top: 100px; margin-right: 30px;"> -->
         </span>
     </div>
     <div class="item">
@@ -29,6 +30,8 @@
                 <img src="./images/2021amt.png" width="600px" height="200px">
             </span>
         <img src="./images/2021pre.png">
+    <canvas id="myChart2" style="width:100%;max-width:900px;height: 500px;"></canvas>
+
         </span>
     </div>
     <div class="item">
@@ -38,6 +41,8 @@
                 <img src="./images/2022amt.png" width="600px" height="200px">
             </span>
         <img src="./images/2022pre.png">
+    <canvas id="myChart3" style="width:100%;max-width:900px;height: 500px;"></canvas>
+
         </span>
     </div>
     <div class="item">
@@ -47,6 +52,8 @@
                 <img src="./images/2023amt.png" width="600px" height="200px">
             </span>
         <img src="./images/2023pre.png">
+    <canvas id="myChart4" style="width:100%;max-width:900px;height: 500px;"></canvas>
+
         </span>
     </div>
     <div class="item">
@@ -58,5 +65,7 @@
         <img src="./images/2024pre.png">
         </span>
     </div>
+    <script src="control.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
