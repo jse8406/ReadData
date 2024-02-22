@@ -250,7 +250,7 @@ function sumOfdata(data){
   return arr
 }
 
-// 
+//change 
 function createAmtTable(data, percents, id, year) {
   
   var sumData = sumOfdata(data)
