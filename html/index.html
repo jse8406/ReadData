@@ -8,62 +8,68 @@
         <title>Dashboard</title>
 </head>
 <body>   
-    <button onclick="change80()">물품</button>
-    <button onclick="change88()">용역</button>
+    <div class="floating-button">
+        <button class="fb" onclick="change80()">물품</button>
+        <button class="fb" onclick="change88()">용역</button>
+    </div>
     <h1 style="margin-left: 1100px;">물품</h1>
     <div class="item">
         <span>
             <span class="table">
                 <h4>낙찰하한률 80.495%</h4>
-                <img src="./images/2020amt.png" width="600px" height="200px">
+                <div id="amtTable"></div>
             </span>
-        <img src="./images/2020pre.png">
-    <canvas id="myChart" style="width:100%;max-width:900px;height: 500px;"></canvas>
+            <span class="graph-container">
+                <canvas id="amtChart" style="width:100%;max-width:900px;height: 500px;"></canvas>
+                <canvas id="rateChart" style="width:100%;max-width:900px;height: 500px;"></canvas>
+                <span class="table">
+                    <div id="rateTable" class="table"></div>
+            </span>
+            </span>
+    </div>
+    <div class="item">
+        <span>
+            <span class="table">
+                <h4>낙찰하한률 80.495%</h4>
+                <div id="amtTable2"></div>
+            </span>
+            <canvas id="amtChart2" style="width:100%;max-width:900px;height: 500px;"></canvas>
+            <canvas id="rateChart2" style="width:100%;max-width:900px;height: 500px;"></canvas>
+            <div id="rateTable2" class="table"></div>
+        </span>
 
-        <img src="./images/2020amtpercent.png" width="600px" height="200px" style="margin-top: 100px; margin-right: 30px;">
+
+    </div>
+    <div class="item">
+        <span>
+            <span class="table">
+                <h4>낙찰하한률 80.495%</h4>
+                <div id="amtTable3"></div>
+            </span>
+            <canvas id="amtChart3" style="width:100%;max-width:900px;height: 500px;"></canvas>
+            <canvas id="rateChart3" style="width:100%;max-width:900px;height: 500px;"></canvas>
+            <div id="rateTable3" class="table"></div>
+
         </span>
     </div>
     <div class="item">
         <span>
             <span class="table">
                 <h4>낙찰하한률 80.495%</h4>
-                <img src="./images/2021amt.png" width="600px" height="200px">
+                <div id="amtTable4"></div>
             </span>
-        <img src="./images/2021pre.png">
-    <canvas id="myChart2" style="width:100%;max-width:900px;height: 500px;"></canvas>
-    <img src="./images/2021amtpercent.png" width="600px" height="200px" style="margin-top: 100px; margin-right: 30px;">
+            <canvas id="amtChart4" style="width:100%;max-width:900px;height: 500px;"></canvas>
+            <canvas id="rateChart4" style="width:100%;max-width:900px;height: 500px;"></canvas>
+            <div id="rateTable4" class="table"></div>
         </span>
     </div>
     <div class="item">
         <span>
             <span class="table">
-                <h4>낙찰하한률 80.495%</h4>
-                <img src="./images/2022amt.png" width="600px" height="200px">
             </span>
-        <img src="./images/2022pre.png">
-    <canvas id="myChart3" style="width:100%;max-width:900px;height: 500px;"></canvas>
-    <img src="./images/2022amtpercent.png" width="600px" height="200px" style="margin-top: 100px; margin-right: 30px;">
-        </span>
-    </div>
-    <div class="item">
-        <span>
-            <span class="table">
-                <h4>낙찰하한률 80.495%</h4>
-                <img src="./images/2023amt.png" width="600px" height="200px">
-            </span>
-        <img src="./images/2023pre.png">
-    <canvas id="myChart4" style="width:100%;max-width:900px;height: 500px;"></canvas>
-    <img src="./images/2023amtpercent.png" width="600px" height="200px" style="margin-top: 100px; margin-right: 30px;">
-        </span>
-    </div>
-    <div class="item">
-        <span>
-            <span class="table">
-                <h4>낙찰하한률 80.495%</h4>
-                <img src="./images/2024amt.png" width="600px" height="200px">
-            </span>
-        <img src="./images/2024pre.png">
-    <img src="./images/2024amtpercent.png" width="600px" height="200px" style="margin-top: 100px; margin-right: 30px;">
+    <canvas style="width:100%;max-width:900px;height: 500px;"></canvas>
+    <canvas style="width:100%;max-width:900px;height: 500px;"></canvas>
+    <!-- <img src="./images/2024amtpercent.png" width="600px" height="200px" style="margin-top: 100px; margin-right: 30px;"> -->
 
         </span>
     </div>

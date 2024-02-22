@@ -12,3 +12,61 @@ span{
     display: flex;
     flex-direction: column;
 }
+
+.floating-button{
+    position: fixed;
+    top: 20px;
+    left: 20px;
+  }
+  
+  
+  .fb {
+    background-color: #5b84d5;
+    color: white;
+    border: none;
+    border-radius: 20%;
+    padding: 15px 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .fb:hover{
+        color: rgba(255, 255, 255, 0.85);
+        box-shadow: rgba(30, 22, 54, 0.7) 0 80px 0px 2px inset;
+  }
+  /* 테이블 전체 스타일 */
+table {
+    width: 600px;
+    border-collapse: collapse;
+    border: 1px solid #ddd; /* 테이블 테두리 스타일 */
+    padding-top: 40px;
+  }
+  
+  /* 테이블 헤더 스타일 */
+  th {
+    background-color: #dee733; /* 헤더 배경색 */
+    border: 1px solid #dee733; /* 헤더 테두리 스타일 */
+    padding: 8px; /* 셀 안 패딩 */
+    text-align: left; /* 텍스트 정렬 */
+  }
+  
+  /* 테이블 데이터 셀 스타일 */
+  td {
+    border: 1px solid #ddd; /* 데이터 셀 테두리 스타일 */
+    padding: 8px; /* 셀 안 패딩 */
+    text-align: left; /* 텍스트 정렬 */
+  }
+  caption {
+    caption-side: top;
+    white-space: nowrap;
+    margin-left: 200px;
+    margin-right: 200px;
+    font-weight: bold;
+    font-size: 1.0em;
+    margin-bottom: 10px;
+    text-align: center; /* 가운데 정렬 */
+    background-color: #f0f0f0; /* 배경색 지정 */
+    padding: 8px; /* 내부 여백 추가 */
+    border: 1px solid #ccc; /* 테두리 추가 */
+    border-radius: 5px; /* 테두리 둥글게 만들기 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 그림자 효과 추가 */
+  }
