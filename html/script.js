@@ -250,25 +250,36 @@ function sumOfdata(data){
   return arr
 }
 
+headers = [[], '수량', '비율']
+
 //change 
 function createAmtTable(data, percents, id, year) {
   
   var sumData = sumOfdata(data)
-  // 테이블 컨테이너 요소
   const container = document.getElementById(id);
   const caption = document.createElement('caption');
   caption.textContent = `${year}년 수량 집계표`;
+  // 여기까진 caption
+
   container.insertBefore(caption, container.firstChild);
   // 테이블 요소 생성
   const table = document.createElement('table');
   // 첫 번째 행에는 월 정보를 추가
   const headerRow = table.insertRow();
-  percents.forEach(percent => {
+  headers.forEach(header => {
     const th = document.createElement('th');
-    th.textContent = percent;
+    th.textContent = header;
     headerRow.appendChild(th);
   });
-  sumData.forEach(rowData => {
+  const transposed = []
+  for (let i = 0; i < percents.length; i++) {
+    transposed.push([]);
+    transposed[i].push(percents[i]);
+    for (let j = 0; j < sumData.length; j++) {
+      transposed[i].push(sumData[j][i]);
+    }
+  }
+  transposed.forEach(rowData => {
     const row = table.insertRow();
     rowData.forEach(value => {
       const cell = row.insertCell();
@@ -283,11 +294,11 @@ function updateAmtTable (data,id) {
   var sumData = sumOfdata(data)
   // 변경할 테이블의 DOM 요소 가져오기
   const table = document.getElementById(id);
-  for (let i = 0; i < percents.length; i++){
-  table.getElementsByTagName("tr")[1].getElementsByTagName("td")[i].innerHTML = sumData[0][i]
+  for (let i = 1; i < 8; i++){
+  table.getElementsByTagName("tr")[i].getElementsByTagName("td")[1].innerHTML = sumData[0][i-1]
   }
-  for (let i = 0; i < percents.length; i++){
-    table.getElementsByTagName("tr")[2].getElementsByTagName("td")[i].innerHTML = sumData[1][i]
+  for (let i = 1; i < 8; i++){
+    table.getElementsByTagName("tr")[i].getElementsByTagName("td")[2].innerHTML = sumData[1][i-1]
     }
 }
 function updateRateTable(data, id){
@@ -305,6 +316,7 @@ function createRateTable(data, percents, id, year){
   const caption = document.createElement('caption');
   caption.textContent = `${year}년 비율 집계표`;
   container.insertBefore(caption, container.firstChild);
+  //여기까진 caption
   const table = document.createElement('table');
   const headerRow = table.insertRow();
   percents.forEach(percent => {
