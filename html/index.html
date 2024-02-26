@@ -3,74 +3,80 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="style.css" rel="stylesheet" type="text/css" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
         <title>Dashboard</title>
-</head>
-<body>   
-    <div class="floating-button">
-        <button class="fb" onclick="change80()">물품</button>
-        <button class="fb" onclick="change88()">용역</button>
-    </div>
-    <h1>물품</h1>
-    <div class="item">
-        <span>
-            <span class="table">
-                <h4>낙찰하한률 80.495%</h4>
-                <div id="amtTable"></div>
-            </span>
-                <canvas id="amtChart" style="width:100%;max-width:900px;height: 500px;"></canvas>
-                <canvas id="rateChart" style="width:100%;max-width:900px;height: 500px;"></canvas>
+    </head>
+    <body>
+        <div class="floating-button">
+            <button class="fb" onclick="change80()">물품</button>
+            <button class="fb" onclick="change88()">용역</button>
+        </div>
+        <header>
+            <h1>물품</h1>
+        </header>
+
+        <div class="item">
+            <span>
+                <span class="amtTable">
+                    <h4>낙찰하한률 80.495%</h4>
+                    <div id="amtTable"></div>
+                </span>
+                <canvas id="amtChart"></canvas>
+                <canvas id="rateChart"></canvas>
                 <span class="table">
-                    <div id="rateTable" class="table"></div>
-            </span>
-    </div>
-    <div class="item">
-        <span>
-            <span class="table">
-                <h4>낙찰하한률 80.495%</h4>
-                <div id="amtTable2"></div>
-            </span>
-            <canvas id="amtChart2" style="width:100%;max-width:900px;height: 500px;"></canvas>
-            <canvas id="rateChart2" style="width:100%;max-width:900px;height: 500px;"></canvas>
-            <div id="rateTable2" class="table"></div>
-        </span>
+                    <div id="rateTable" class="rateTable"></div>
+                </span>
+            </div>
+            <div class="item">
+                <span>
+                    <span class="amtTable">
+                        <h4>낙찰하한률 80.495%</h4>
+                        <div id="amtTable2"></div>
+                    </span>
+                    <canvas id="amtChart2"></canvas>
+                    <canvas id="rateChart2"></canvas>
+                    <span class="rateTable">
+                        <div id="rateTable2" class="rateTable"></div>
+                    </span>
 
+                </span>
 
-    </div>
-    <div class="item">
-        <span>
-            <span class="table">
-                <h4>낙찰하한률 80.495%</h4>
-                <div id="amtTable3"></div>
-            </span>
-            <canvas id="amtChart3" style="width:100%;max-width:900px;height: 500px;"></canvas>
-            <canvas id="rateChart3" style="width:100%;max-width:900px;height: 500px;"></canvas>
-            <div id="rateTable3" class="table"></div>
+            </div>
+            <div class="item">
+                <span>
+                    <span class="amtTable">
+                        <h4>낙찰하한률 80.495%</h4>
+                        <div id="amtTable3"></div>
+                    </span>
+                    <canvas id="amtChart3"></canvas>
+                    <canvas id="rateChart3"></canvas>
+                    <div id="rateTable3" class="rateTable"></div>
 
-        </span>
-    </div>
-    <div class="item">
-        <span>
-            <span class="table">
-                <h4>낙찰하한률 80.495%</h4>
-                <div id="amtTable4"></div>
+                </span>
+            </div>
+            <div class="item">
+                <span>
+                    <span class="amtTable">
+                        <h4>낙찰하한률 80.495%</h4>
+                        <div id="amtTable4"></div>
+                    </span>
+                    <canvas id="amtChart4"></canvas>
+                    <canvas id="rateChart4"></canvas>
+                    <div id="rateTable4" class="rateTable"></div>
+                </span>
+            </div>
+            <div class="item">
+                <span class="amtTable">
+                    <h4>낙찰하한률 80.495%</h4>
+                    <div id="amtTable5"></div>
+                </span>
+                <canvas id="amtChart5"></canvas>
+                <canvas id="rateChart5"></canvas>
+                <div id="rateTable5" class="rateTable"></div>
             </span>
-            <canvas id="amtChart4" style="width:100%;max-width:900px;height: 500px;"></canvas>
-            <canvas id="rateChart4" style="width:100%;max-width:900px;height: 500px;"></canvas>
-            <div id="rateTable4" class="table"></div>
-        </span>
-    </div>
-    <div class="item">
-        <span>
-            <span class="table">
-            </span>
-    <canvas style="width:100%;max-width:900px;height: 500px;"></canvas>
-    <canvas style="width:100%;max-width:900px;height: 500px;"></canvas>
-    <!-- <img src="./images/2024amtpercent.png" width="600px" height="200px" style="margin-top: 100px; margin-right: 30px;"> -->
+            </div>
+        </body>
+        <script src="script.js"></script>
+        <link href="style.css" rel="stylesheet" type="text/css"/>
 
-        </span>
-    </div>
-</body>
-<script src="script.js"></script>
-</html>
+    </html>

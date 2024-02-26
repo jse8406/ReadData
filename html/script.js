@@ -68,6 +68,14 @@ const yValamt2023 = [
       [1, 9, 13, 14, 8, 11, 3, 12, 14, 9, 12, 11],
        [1, 9, 8, 18, 14, 13, 10, 6, 7, 6, 11, 9]
       ]
+      const yValamt2024 = [
+        [2, 9, 13, 11, 11, 14, 7, 10, 11, 9, 8, 11],
+         [1, 8, 15, 23, 17, 13, 14, 12, 12, 8, 10, 13],
+          [2, 8, 17, 17, 14, 8, 11, 17, 10, 13, 12, 12],
+           [0, 7, 19, 16, 13, 9, 14, 16, 3, 7, 12, 9],
+            [1, 9, 13, 14, 8, 11, 3, 12, 14, 9, 12, 11],
+             [1, 9, 8, 18, 14, 13, 10, 6, 7, 6, 11, 9]
+            ]
 // 용역 비율 정보
 const yValrate2020yy = [
   [0.0, 0.0, 8.33, 6.25, 10.42, 12.5, 4.17, 10.42, 12.5, 6.25, 8.33, 20.83],
@@ -99,6 +107,14 @@ const yValrate2023yy =
     [0.0, 4.76, 7.14, 11.9, 7.14, 9.52, 2.38, 14.29, 9.52, 11.9, 11.9, 9.52],
      [0.0, 8.33, 6.25, 14.58, 12.5, 14.58, 6.25, 4.17, 6.25, 4.17, 14.58, 8.33]
     ]
+    const yValrate2024yy = 
+    [[0.0, 2.13, 6.38, 12.77, 6.38, 14.89, 8.51, 8.51, 10.64, 12.77, 10.64, 6.38],
+     [1.64, 6.56, 8.2, 19.67, 13.11, 8.2, 8.2, 6.56, 4.92, 6.56, 6.56, 9.84],
+      [2.56, 2.56, 7.69, 12.82, 15.38, 2.56, 10.26, 2.56, 7.69, 10.26, 12.82, 12.82],
+       [0.0, 4.35, 13.04, 15.22, 8.7, 4.35, 10.87, 8.7, 2.17, 4.35, 15.22, 13.04],
+        [0.0, 4.76, 7.14, 11.9, 7.14, 9.52, 2.38, 14.29, 9.52, 11.9, 11.9, 9.52],
+         [0.0, 8.33, 6.25, 14.58, 12.5, 14.58, 6.25, 4.17, 6.25, 4.17, 14.58, 8.33]
+        ]
 // 용역 수량 정보
 const yValamt2020yy = [[0, 0, 4, 3, 5, 6, 2, 5, 6, 3, 4, 10], [0, 2, 6, 7, 5, 1, 1, 2, 4, 2, 3, 4], [0, 1, 3, 4, 4, 3, 1, 1, 2, 6, 5, 4], [0, 0, 1, 4, 3, 3, 2, 2, 3, 4, 2, 3], [1, 3, 4, 2, 2, 0, 3, 2, 2, 0, 2, 3], [1, 2, 3, 7, 6, 1, 2, 3, 3, 4, 1, 5]]
 const yValamt2021yy = [[3, 1, 0, 10, 6, 7, 0, 1, 3, 2, 6, 1], [1, 0, 2, 5, 5, 8, 4, 2, 2, 4, 5, 3], [1, 1, 5, 7, 6, 3, 7, 5, 5, 2, 1, 3], [1, 1, 2, 7, 2, 6, 6, 2, 2, 3, 5, 2], [2, 1, 5, 7, 10, 2, 2, 3, 2, 3, 3, 2], [3, 1, 3, 4, 2, 9, 0, 1, 0, 4, 3, 1]]
@@ -145,7 +161,7 @@ function dataset(set, year, title){
   return chartConfig
 }
 // 물품 연도별 정보 배열
-const yValRateArray = [yValrate2020, yValrate2021, yValrate2022,yValrate2023]
+const yValRateArray = [yValrate2020, yValrate2021, yValrate2022,yValrate2023,]
 const yValAmtArray = [yValamt2020, yValamt2021, yValamt2022,yValamt2023]
 
 // 용역 연도별 정보 배열
@@ -153,8 +169,8 @@ const yValyyRateArray = [yValrate2020yy,yValrate2021yy,yValrate2022yy,yValrate20
 const yValyyAmtArray = [yValamt2020yy,yValamt2021yy,yValamt2022yy,yValamt2023yy]
 
 // html 차트 id 모음
-const amtChartElements = ["amtChart","amtChart2","amtChart3", "amtChart4"]
-const rateChartElements = ["rateChart","rateChart2","rateChart3", "rateChart4"]
+const amtChartElements = ["amtChart","amtChart2","amtChart3", "amtChart4","amtChart5"]
+const rateChartElements = ["rateChart","rateChart2","rateChart3", "rateChart4", "rateChart5"]
 const years = [2020, 2021, 2022, 2023]
 
 let Charts= []
