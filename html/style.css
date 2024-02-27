@@ -14,9 +14,15 @@ span {
 }
 table {
     border-collapse: collapse;
-    border: 1px solid #ddd;
-    /* 테이블 테두리 스타일 */
-    padding-top: 40px;
+    width: 100%;
+    color: #333;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    text-align: left;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    margin: 10px auto;
 }
 
 .floating-button {
@@ -29,12 +35,12 @@ table {
     flex-direction: column;
 }
 .amtTable table {
-  width: 180px;
-  height: 300px;
+    width: 180px;
+    height: 260px;
 }
 .rateTable table {
-  width: 500px;
-  height: 430px;
+    width: 500px;
+    height: 390px;
 }
 .amtTable {
     display: flex;
@@ -55,7 +61,6 @@ table {
     box-shadow: rgba(30, 22, 54, 0.7) 0 80px 0 2px inset;
 }
 /* 테이블 전체 스타일 */
-
 
 /* 테이블 헤더 스타일 */
 th {
@@ -95,17 +100,17 @@ h1 {
 }
 
 tr:nth-child(even) {
-  background-color: #fff6f6;
+    background-color: #fff6f6;
 }
 tbody tr:hover {
-  background-color: #d3d3d3;
-  opacity: 0.9;
-  cursor: pointer;
+    background-color: #d3d3d3;
+    opacity: 0.9;
+    cursor: pointer;
 }
 
-canvas{
-  width: 100%;
-  max-width: 900px;
-  height: 100%;
-  max-height: 500px;
+canvas {
+    width: 100%;
+    max-width: 900px;
+    height: 100%;
+    max-height: 500px;
 }
