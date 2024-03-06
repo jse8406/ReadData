@@ -178,6 +178,10 @@ function drawMpChart(){
   }
   // 물품 비율 그래프
   for (let i = 0; i < years.length; i++) {
+    if(i==years.length - 1){
+      max_num = 100;
+    }
+
     var ctx = document.getElementById(rateChartElements[i]).getContext("2d");
     var chart = new Chart(ctx, dataset(yValRateArray[i], years[i], '비율별'));
     Charts.push(chart)
