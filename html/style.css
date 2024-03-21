@@ -77,6 +77,7 @@ td {
 }
 caption {
     caption-side: top;
+    color: black;
     white-space: nowrap;
     font-weight: bold;
     font-size: 1.0em;
@@ -87,7 +88,7 @@ caption {
     /* 배경색 지정 */
     padding: 8px;
     /* 내부 여백 추가 */
-    border: 1px solid #ccc;
+    border: 1px solid #a9a8a8;
     /* 테두리 추가 */
     border-radius: 5px;
     /* 테두리 둥글게 만들기 */
@@ -112,5 +113,10 @@ canvas {
     width: 100%;
     max-width: 900px;
     height: 100%;
+    border-radius: 20px;
+    background-color: rgb(151, 147, 147);
     max-height: 500px;
+}
+
+body{
 }

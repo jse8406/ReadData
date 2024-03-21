@@ -1,6 +1,6 @@
 const dates = Array.from({ length: 12 }, (_, i) => `${i + 1}월`);
-const backgroundColors = ["blue", "yellow", "green", "red", "purple","black"];
-const borderColors = ["rgba(0,0,255,0.3)", "rgba(255,255,0,0.6)","rgba(0,255,0,0.3)", "rgba(255,0,0,0.6)", "rgba(255,0,255,0.3)", "rgba(0,0,0,0.6)"];
+const backgroundColors = ["blue", "yellow", "green", "red", "white","black"];
+const borderColors = ["rgba(0,0,255,1)", "rgba(255,255,0,1)","rgba(0,255,0,1)", "rgba(255,0,0,1)", "rgba(255,255,255,1)", "rgba(0,0,0,1)"];
 
 // 물품 비율 정보
 const yValrate2020 = [
