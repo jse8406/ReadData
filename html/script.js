@@ -134,12 +134,27 @@ function dataset(set, year, title){
         display: true,
         text: `${year}년 ${title} 예가율`,
         fontSize: 17,
+        fontColor: "white",
   
       },
       legend: {
+        labels:{
+          fontColor: "White",
+        },
         position: 'top',
-        display: true },
-      scales: { yAxes: [{ ticks: { min: 0, max: max_num } 
+        display: true,
+      },
+      scales: { 
+        xAxes: [{
+          ticks: {
+            fontColor: "white",
+          }
+        }],
+        yAxes: [{ ticks: { 
+        min: 0, 
+        max: max_num,
+        fontColor: "white",
+      } 
       }]},
       elements: {
         point: {
