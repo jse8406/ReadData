@@ -6,7 +6,7 @@ db_path = 'db/priceDB.db'
 
 # 가져올 연도와 월
 year = '2024'
-month = '01'
+month = '10'
 
 # 날짜 구간 설정
 date_ranges = [("01", "10"), ("11", "20"), ("21", "31")]
@@ -33,3 +33,5 @@ for start, end in date_ranges:
 
 # 연결 종료
 conn.close()
+
+

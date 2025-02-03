@@ -31,6 +31,7 @@ table {
     left: 20px;
 }
 .amtTable {
+    margin-right: 20px;
     display: flex;
     flex-direction: column;
 }
@@ -39,6 +40,7 @@ table {
     height: 260px;
 }
 .rateTable table {
+    margin-left: 20px;
     width: 350px;
     height: 390px;
 }
@@ -76,6 +78,7 @@ td {
     /* 데이터 셀 테두리 스타일 */
 }
 caption {
+    margin-left: 15px;
     caption-side: top;
     color: black;
     white-space: nowrap;

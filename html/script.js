@@ -275,6 +275,10 @@ function change88(){
   }
 }
 
+function change10avg(){
+  
+}
+
 const percents = ['99.9%','100.0%','100.1%','100.2%','100.3%','100.4%', '총합'];
 const amtTableElements = ["amtTable","amtTable2","amtTable3", "amtTable4","amtTable5", "amtTable6"]
 const rateTableElements = ["rateTable","rateTable2","rateTable3", "rateTable4","rateTable5", "rateTable6"]
