@@ -113,8 +113,10 @@ tbody tr:hover {
 }
 
 canvas {
+    padding: 7px;
     width: 100%;
-    max-width: 900px;
+    margin: 10px;
+    max-width: 800px;
     height: 100%;
     border-radius: 20px;
     background-color: rgb(151, 147, 147);
