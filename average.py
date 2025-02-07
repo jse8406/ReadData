@@ -5,7 +5,7 @@ import pandas as pd
 db_path = 'db/priceDB.db'
 
 # 가져올 연도
-year = '2022'
+year = '2020'
 
 # 날짜 구간 설정 (1~10일, 11~20일, 21~31일)
 date_ranges = [("01", "10"), ("11", "20"), ("21", "31")]

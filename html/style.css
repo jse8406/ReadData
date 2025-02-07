@@ -25,6 +25,38 @@ table {
     margin: 10px auto;
 }
 
+.avgTable {
+    display: flex;
+    justify-content: center; /* 중앙 정렬 */
+    align-items: center; /* 세로 정렬 */
+    width: 100%;
+    transform: translateX(-7%);
+
+}
+
+.avgTable table {
+    width: 1400px; /* 표의 크기를 컨텐츠 크기에 맞게 자동 조정 */
+    max-width: 80%; /* 너무 길어지지 않도록 제한 */
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.avgTable {
+    display: flex;
+    justify-content: center; /* 표 전체를 가운데 정렬 */
+    width: 100%;
+    margin: 20px auto;
+}
+
+.avgTable caption {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 5px; /* 캡션과 표 사이의 여백 */
+    position: relative;
+    left: 10%;
+}
+
+
 .floating-button {
     position: fixed;
     top: 20px;
@@ -66,9 +98,9 @@ table {
 
 /* 테이블 헤더 스타일 */
 th {
-    background-color: #dee733;
+    background-color: #71cef0;
     /* 헤더 배경색 */
-    border: 1px solid #dee733;
+    border: 1px solid #71cef0;
     /* 셀 안 패딩 */
 }
 
