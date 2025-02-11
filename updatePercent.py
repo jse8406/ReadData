@@ -46,13 +46,3 @@ for i in range(6):
         if result[i] != 0:
             y_values[i][j] = round(y_values[i][j]/result[i]*100, 2)
 print(y_values)
-# for index in range(6):
-#     plt.plot(dates, [y_values[index][i] for i in range(12)], label=f'{round(99.9+ index * 0.1, 1)}%', marker="o", markersize = 3, linewidth = 1)
-
-# plt.xticks(dates[::1])
-# plt.title(f"{year}년 예가율")
-# plt.legend(loc='upper left')
-# plt.savefig(f'html/images/{year}pre{addition}percent.png', dpi=100, bbox_inches='tight')
-
-
-#plt.show()

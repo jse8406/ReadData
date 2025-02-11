@@ -16,8 +16,6 @@ year = '2025'
 db_path = 'db/priceDB.db'
 # db_path = 'db/yongyuk.db'
 
-if db_path =='yongyuk.db':
-    addition = 'yy'
 conn = sqlite3.connect(db_path)
 plt.rcParams['font.family'] ='Malgun Gothic'
 plt.rcParams['axes.unicode_minus'] =False

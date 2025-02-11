@@ -234,7 +234,7 @@ function drawYyChart(){
     var chart = new Chart(ctx, dataset(yValyyAmtArray[i], years[i], '수량별'));
     Charts.push(chart)
   }
-  // 물품 비율 그래프
+  // 용역 비율 그래프
   for (let i = 0; i < years.length; i++) {
     if(i==years.length - 1){
       max_num = 100;
@@ -248,9 +248,10 @@ function drawYyChart(){
 }
 
 // 물품 display 랜더링
-function change80(){
+function change2Mp(){
   var title = document.getElementsByTagName("h1");
   title[0].innerText = "물품";
+  loadAvgRateData("avgRateDataMp.json");
 
   var h4Elements = document.getElementsByTagName("h4");
   for (var i = 0; i < h4Elements.length; i++){
@@ -264,10 +265,10 @@ function change80(){
 }
 
 // 용역 display 랜더링
-function change88(){
+function change2Yy(){
   var title = document.getElementsByTagName("h1");
   title[0].innerText = "용역";
-  
+  loadAvgRateData("avgRateDataYy.json");
   var h4Elements = document.getElementsByTagName("h4");
   for (var i = 0; i < h4Elements.length; i++){
       h4Elements[i].
@@ -394,7 +395,47 @@ function createRateTable(data, percents, id, year){
   container.appendChild(table);
 }
 
+// drawMptable 함수로 나중에 묶을 것
+for (let i = 0; i < years.length; i++) {
+  createAmtTable(yValAmtArray[i], percents, amtTableElements[i], years[i]);
+}
+percents.pop(); // 총합 col 제거
+percents.unshift('');
+for (let i = 0; i < years.length; i++) {
+  createRateTable(yValRateArray[i], percents, rateTableElements[i], years[i]);
+}
 
+//초기 시작시 한번 그리고 시작
+drawMpChart()
+
+
+
+
+
+
+
+async function loadAvgRateData(filename) {
+  try {
+      const response = await fetch(filename); // JSON 파일 불러오기
+      const data = await response.json();
+
+      const avgRateData = data.avgRateData;
+      const years = data.years;
+      const avgTableIdList = data.avgTableIdList;
+
+      console.log("평균 예가율 데이터 로드 완료!", avgRateData);
+
+      // JSON에서 불러온 데이터를 기반으로 테이블 생성
+      for (let i = 0; i < years.length; i++) {
+          const year = years[i];
+          const tableId = avgTableIdList[i];
+          createAvgTable(avgRateData[year], tableId);
+      }
+
+  } catch (error) {
+      console.error("평균 예가율 데이터 로드 실패:", error);
+  }
+}
 
 
 function createAvgTable(data, id) {
@@ -435,40 +476,7 @@ function createAvgTable(data, id) {
   container.appendChild(table);
 }
 
-// drawMptable 함수로 나중에 묶을 것
-for (let i = 0; i < years.length; i++) {
-  createAmtTable(yValAmtArray[i], percents, amtTableElements[i], years[i]);
-}
-percents.pop(); // 총합 col 제거
-percents.unshift('');
-for (let i = 0; i < years.length; i++) {
-  createRateTable(yValRateArray[i], percents, rateTableElements[i], years[i]);
-}
-
-//초기 시작시 한번 그리고 시작
-drawMpChart()
 
 
-const avgRateData2024 = [
-  [100.2, 100.1, 99.9], [100.2, 100.2, 100.3], [100.2, 100.1, 100.2],
-  [100.4, 100.0, 100.1], [100.2, 99.8, 100.1], [100.3, 100.2, 100.1],
-  [100.1, 100.2, 100.1], [100.0, 100.3, 100.2], [100.1, 100.1, 100.2],
-  [100.3, 100.0, 99.9], [100.2, 100.1, 100.1], [100.1, 100.2, 99.9]
-];
-
-const avgRateData2023 = [[100.0, 99.7, 100.1], [100.2, 100.1, 100.0], [100.0, 100.1, 100.0], [100.1, 100.1, 100.2], [100.2, 100.0, 100.0], [100.1, 100.0, 100.1], [100.0, 100.0, 100.1], [100.1, 100.2, 100.2], [100.1, 100.2, 100.0], [100.0, 100.1, 100.0], [100.0, 100.1, 100.1], [100.0, 99.9, 100.2]];
-
-const avgRateData2022 = [[99.7, 100.1, 100.6], [100.2, 100.0, 100.0], [100.1, 99.9, 100.1], [100.0, 100.2, 100.2], [100.1, 100.1, 100.1], [100.1, 100.1, 100.1], [99.9, 100.0, 100.0], [100.1, 100.1, 100.0], [100.2, 100.1, 100.0], [100.1, 100.0, 100.1], [100.0, 100.0, 100.0], [100.0, 100.0, 100.0]]
-
-const avgRateData2021 = [[100.2, 100.2, 100.1], [100.1, 100.1, 100.0], [100.1, 100.1, 100.2], [100.1, 100.1, 100.0], [100.0, 100.0, 100.2], [100.1, 100.0, 100.1], [100.2, 100.1, 100.1], [100.1, 100.1, 99.9], [100.0, 100.1, 100.1], [100.1, 100.1, 100.1], [100.0, 100.1, 100.1], [100.1, 100.0, 100.0]]
-
-const avgRateData2020 = [[100.1, 100.0, 99.9], [100.0, 100.2, 100.0], [99.9, 100.1, 100.1], [100.1, 100.1, 100.1], [100.1, 100.1, 100.1], [100.1, 100.0, 100.1], [100.1, 100.2, 100.1], [100.1, 100.1, 100.1], [100.0, 100.0, 100.0], [100.0, 100.1, 100.1], [100.0, 100.1, 100.0], [100.0, 100.0, 100.0]]
-
-
-
-const avgRateList = [avgRateData2020,avgRateData2021,avgRateData2022,avgRateData2023,avgRateData2024]
-const avgTableIdList = ["avgTable1","avgTable2","avgTable3","avgTable4", "avgTable5"]
-
-for(let i=0; i<5;i++){
-  createAvgTable(avgRateList[i], avgTableIdList[i]);
-}
+// JSON 데이터 로드 후 실행
+loadAvgRateData("avgRateDataMp.json");
