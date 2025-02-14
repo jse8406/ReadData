@@ -3,10 +3,10 @@ import pandas as pd
 
 # 데이터베이스 경로
 db_path = 'db/priceDB.db'
-db_path = 'db/yongyuk.db'
+# db_path = 'db/yongyuk.db'
 
 # 가져올 연도
-year = '2024'
+year = '2025'
 
 # 날짜 구간 설정 (1~10일, 11~20일, 21~31일)
 date_ranges = [("01", "10"), ("11", "20"), ("21", "31")]

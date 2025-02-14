@@ -30,7 +30,7 @@ table {
     justify-content: center; /* 중앙 정렬 */
     align-items: center; /* 세로 정렬 */
     width: 100%;
-    transform: translateX(-7%);
+    transform: translateX(-10%);
 
 }
 

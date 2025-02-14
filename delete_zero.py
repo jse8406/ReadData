@@ -8,7 +8,7 @@ conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
 
 # min_rate 값이 0인 행 삭제
-delete_query = "DELETE FROM price_set WHERE min_rate = 0;"
+delete_query = "DELETE FROM price_set WHERE min_rate = 0 or min_rate = ''"
 cursor.execute(delete_query)
 
 # 변경사항 저장 (Commit)
