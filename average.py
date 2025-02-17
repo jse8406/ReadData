@@ -1,12 +1,16 @@
 import sqlite3
 import pandas as pd
+import json
+import argparse
 
 # 데이터베이스 경로
 db_path = 'db/priceDB.db'
 # db_path = 'db/yongyuk.db'
 
-# 가져올 연도
-year = '2025'
+parser = argparse.ArgumentParser(description="입찰 데이터의 평균 비율을 JSON 파일에 업데이트")
+parser.add_argument("-y", "--year", type=str, default="2025", required=True, help="가져올 연도 (예: 2024)")
+args = parser.parse_args()
+year = args.year  # 사용자 입력 연도
 
 # 날짜 구간 설정 (1~10일, 11~20일, 21~31일)
 date_ranges = [("01", "10"), ("11", "20"), ("21", "31")]
@@ -38,5 +42,12 @@ for month in range(1, 13):
     total.append(value)
 
 print(total)
+json_path = './html/avgRateDataMp.json'
+with open(json_path, "r", encoding="utf-8") as file:
+    json_data = json.load(file)
+
+json_data["avgRateData"][year] = total
+with open(json_path, "w", encoding="utf-8") as file:
+    json.dump(json_data, file, ensure_ascii=False, indent=2)
 # 연결 종료
 conn.close()
