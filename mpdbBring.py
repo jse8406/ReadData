@@ -15,7 +15,8 @@ options.add_argument("headless")
 column = ['날짜', '기초가', '예가', '투찰가' , '공고번호']
 
 # init DB
-db_path = 'db/priceDB.db'
+base_dir = os.path.dirname(__file__)
+db_path = os.path.join(base_dir, 'db', 'priceDB.db')
 conn = sqlite3.connect(db_path)
 price_db = PriceDB(db_path)
 price_db.init_db()
@@ -23,7 +24,6 @@ price_db.init_db()
 # search from the last bid
 maximum = pd.read_sql("SELECT max(ann_num) FROM price_set", conn)
 start_num = int(maximum.values[0,0] + 1)
-start_num = 9246500
 driver = webdriver.Chrome(options=options)
 wait = WebDriverWait(driver, 10)  # 최대 10초까지 대기
 # 9247000 ~ 끝

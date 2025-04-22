@@ -6,12 +6,13 @@ from selenium.webdriver.common.by import By
 import pandas as pd
 from expectedBring import bring_bid_amount
 from db.db_module import PriceDB
+import os
 
 options = webdriver.ChromeOptions()
 options.add_argument("headless")
 driver = webdriver.Chrome(options=options)
-
-db_path = 'db/yongyuk.db'
+base_dir = os.path.dirname(__file__)
+db_path = os.path.join(base_dir, 'db', 'priceDB.db')
 conn = sqlite3.connect(db_path)
 maximum = pd.read_sql("SELECT max(ann_num) FROM price_set", conn)
 
