@@ -14,7 +14,7 @@ year = '2025'
 
 # SQLite 연결 및 데이터 가져오기
 db_path = 'db/priceDB.db'
-# db_path = 'db/yongyuk.db'
+db_path = 'db/yongyuk.db'
 
 conn = sqlite3.connect(db_path)
 plt.rcParams['font.family'] ='Malgun Gothic'
