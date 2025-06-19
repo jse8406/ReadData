@@ -5,10 +5,10 @@ import argparse
 
 # 데이터베이스 경로
 db_path = 'db/priceDB.db'
-db_path = 'db/yongyuk.db'
+# db_path = 'db/yongyuk.db'
 
 parser = argparse.ArgumentParser(description="입찰 데이터의 평균 비율을 JSON 파일에 업데이트")
-parser.add_argument("-y", "--year", type=str, default="2025", required=True, help="가져올 연도 (예: 2024)")
+parser.add_argument("-y", "--year", type=str, default="2025", required=False, help="가져올 연도 (예: 2024)")
 args = parser.parse_args()
 year = args.year  # 사용자 입력 연도
 
