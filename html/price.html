@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>가격정보</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .fb { background: #6b93d6; border: none; border-radius: 12px; padding: 12px 28px; margin-right: 8px; font-size: 1em; color: #fff; font-weight: 500; cursor: pointer; transition: background 0.2s; font-weight: bold; }
+        .fb:hover { background: #4666a3; }
+        .top-bar { width: 100%; position: sticky; top: 0; left: 0; background: #fff; z-index: 10; padding: 20px 0 10px 0; box-sizing: border-box; }
+        /* 가격정보 테이블도 대시보드 스타일과 동일하게 */
+        #priceTable {
+            border-collapse: collapse;
+            width: 100%;
+            color: #333;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            text-align: center;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin: 10px auto;
+        }
+        #priceTable th, #priceTable td {
+            border: 1px solid #ccc;
+            padding: 6px 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        #priceTable th {
+            background: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <button class="fb" onclick="location.href='index.html'">대시보드로</button>
+    </div>
+    <h2>가격정보 (2025년 4월~현재)</h2>
+    <table id="priceTable">
+        <thead>
+            <tr>
+                <th>공고번호</th>
+                <th>날짜</th>
+                <th>기초가</th>
+                <th>예가</th>
+                <th>투찰가</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <script>
+    fetch('price_2025_04_to_now.csv')
+      .then(res => res.ok ? res.text() : Promise.reject('CSV 파일을 찾을 수 없습니다.'))
+      .then(text => {
+        const rows = text.trim().split('\n');
+        const tbody = document.querySelector('#priceTable tbody');
+        rows.slice(1).forEach(row => {
+          const cols = row.split(',');
+          const tr = document.createElement('tr');
+          cols.forEach((col, i) => {
+            const td = document.createElement('td');
+            td.textContent = i < 2 ? col : Number(col).toLocaleString();
+            td.style.textAlign = 'center';
+            td.style.fontWeight = 'bold';
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(err => {
+        document.querySelector('#priceTable tbody').innerHTML = `<tr><td colspan="5">${err}</td></tr>`;
+      });
+    </script>
+</body>
+</html>

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-자동화 대시보드 업데이트 스크립트
+자동화 대시보드 업데이트 스크립트 (수정된 버전)
 - 웹 크롤링 (mpdbBring, yydbBring)
 - 데이터 집계 (updateAmount, updatePercent)
-- script.js 파일 자동 업데이트
+- script.js 파일 자동 업데이트 (대괄호 오류 수정)
 """
 
 import subprocess
@@ -104,7 +104,7 @@ class DashboardAutomator:
             return None
     
     def update_script_js(self, mp_amt_data, mp_rate_data, yy_amt_data, yy_rate_data):
-        """script.js 파일의 const 변수들을 자동 업데이트"""
+        """script.js 파일의 const 변수들을 자동 업데이트 (대괄호 오류 수정)"""
         try:
             print("📝 script.js 파일 업데이트 중...")
             
@@ -112,27 +112,41 @@ class DashboardAutomator:
             with open(self.script_js_path, 'r', encoding='utf-8') as file:
                 content = file.read()
             
-            # 데이터를 JavaScript 배열 형식으로 변환
+            # 데이터를 올바른 JavaScript 배열 형식으로 변환
             def format_js_array(data):
-                return str(data).replace("'", "")
-              # 물품(MP) 수량 데이터 업데이트
-            mp_amt_pattern = rf'const yValamt{self.year} =.*?(?=\]\s*\n)'
-            mp_amt_replacement = f'const yValamt{self.year} ={format_js_array(mp_amt_data)}'
-            content = re.sub(mp_amt_pattern, mp_amt_replacement, content, flags=re.DOTALL)
-            
-            # 물품(MP) 비율 데이터 업데이트
-            mp_rate_pattern = rf'const yValrate{self.year} = .*?(?=\]\s*\n)'
-            mp_rate_replacement = f'const yValrate{self.year} = {format_js_array(mp_rate_data)}'
-            content = re.sub(mp_rate_pattern, mp_rate_replacement, content, flags=re.DOTALL)
-              # 용역(YY) 수량 데이터 업데이트
-            yy_amt_pattern = rf'const yValamt{self.year}yy =.*?(?=\]\s*\n)'
-            yy_amt_replacement = f'const yValamt{self.year}yy ={format_js_array(yy_amt_data)}'
-            content = re.sub(yy_amt_pattern, yy_amt_replacement, content, flags=re.DOTALL)
-            
-            # 용역(YY) 비율 데이터 업데이트  
-            yy_rate_pattern = rf'const yValrate{self.year}yy = \s*\n.*?(?=\]\s*\n)'
-            yy_rate_replacement = f'const yValrate{self.year}yy = \n{format_js_array(yy_rate_data)}'
-            content = re.sub(yy_rate_pattern, yy_rate_replacement, content, flags=re.DOTALL)
+                if not data:
+                    return "[]"
+                formatted_rows = [f"[{', '.join(map(str, row))}]" for row in data]
+                return f"[{', '.join(formatted_rows)}]"
+
+            # 2025년 물품 비율
+            content = re.sub(
+                r"(const yValrate2025\s*=\s*)\[.*?\];",
+                f"\\1{format_js_array(mp_rate_data)};",
+                content,
+                flags=re.DOTALL
+            )
+            # 2025년 물품 수량
+            content = re.sub(
+                r"(const yValamt2025\s*=\s*)\[.*?\];",
+                f"\\1{format_js_array(mp_amt_data)};",
+                content,
+                flags=re.DOTALL
+            )
+            # 2025년 용역 비율
+            content = re.sub(
+                r"(const yValrate2025yy\s*=\s*)\[.*?\];",
+                f"\\1{format_js_array(yy_rate_data)};",
+                content,
+                flags=re.DOTALL
+            )
+            # 2025년 용역 수량
+            content = re.sub(
+                r"(const yValamt2025yy\s*=\s*)\[.*?\];",
+                f"\\1{format_js_array(yy_amt_data)};",
+                content,
+                flags=re.DOTALL
+            )
             
             # 파일에 쓰기
             with open(self.script_js_path, 'w', encoding='utf-8') as file:

@@ -5,11 +5,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
         <title>Dashboard</title>
+        <link rel="stylesheet" href="style.css">
+        <style>
+            .top-bar { width: 100%; position: sticky; top: 0; left: 0; background: #fff; z-index: 10; padding: 20px 0 10px 0; box-sizing: border-box; }
+            .fb { background: #6b93d6; border: none; border-radius: 12px; padding: 12px 28px; margin-right: 8px; font-size: 1em; color: #fff; font-weight: 500; cursor: pointer; transition: background 0.2s; font-weight: bold; }
+            .fb:hover { background: #4666a3; }
+        </style>
     </head>
     <body>
-        <div class="floating-button">
+        <div class="top-bar">
             <button class="fb" onclick="change2Mp()">물품</button>
             <button class="fb" onclick="change2Yy()">용역</button>
+            <button class="fb" onclick="location.href='price.html'">가격정보</button>
         </div>
         <header>
             <h1>물품</h1>
@@ -101,6 +108,5 @@
         </footer> -->
 
     </body>
-    <link href="style.css" rel="stylesheet" type="text/css"/>
     <script src="script.js"></script>
 </html>
