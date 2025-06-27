@@ -19,8 +19,7 @@ print(maximum)
 price_db = PriceDB(db_path)
 price_db.init_db()
 start_num = int(maximum.values[0,0] + 1)
-start_num = 9249538
-for i in range(1):
+for i in range(100):
     try:
         url = f"https://ebid.korail.com/goods/printOpen.do?gubun=1&zzbidinv={start_num+i}-00&zzstnum=00"
         driver.get(url)
@@ -28,7 +27,7 @@ for i in range(1):
         open_result = driver.find_element(By.ID, "openresult_t").text
         confirm_price = driver.find_element(By.ID, "confirm_fcast").text
 
-        if open_result == "낙찰업체상신" or open_result == "유찰 처리" and confirm_price != '-' and confirm_price != '':
+        if open_result == "낙찰업체상신" or open_result == "유찰 처리" or open_result == "개찰 확정(현시)" and confirm_price != '-' and confirm_price != '':
             if '용역' in title:
                 print(i + start_num, title, open_result, confirm_price)
                 # 날짜
