@@ -19,7 +19,8 @@ print(maximum)
 price_db = PriceDB(db_path)
 price_db.init_db()
 start_num = int(maximum.values[0,0] + 1)
-for i in range(500):
+start_num = 9249538
+for i in range(1):
     try:
         url = f"https://ebid.korail.com/goods/printOpen.do?gubun=1&zzbidinv={start_num+i}-00&zzstnum=00"
         driver.get(url)
@@ -27,8 +28,9 @@ for i in range(500):
         open_result = driver.find_element(By.ID, "openresult_t").text
         confirm_price = driver.find_element(By.ID, "confirm_fcast").text
 
-        if open_result == "낙찰업체상신" and confirm_price != '-' and confirm_price != '':
+        if open_result == "낙찰업체상신" or open_result == "유찰 처리" and confirm_price != '-' and confirm_price != '':
             if '용역' in title:
+                print(i + start_num, title, open_result, confirm_price)
                 # 날짜
                 date_with_time = driver.find_element(By.ID, "zzopen").text
                 date = date_with_time.split(' ')[0]
@@ -50,11 +52,9 @@ for i in range(500):
                 
                 # 예외 처리: bid_price가 None이면 skip
                 if bid_price is None:
-                    print(f"[SKIP] {start_num + i} - bid_price is None")
-                    continue
+                    bid_price = 0
 
                 price_db.insert_info(start_num + i, date, base_price, predict_price, bid_price, min_rate)
                 print(start_num + i, date, base_price, predict_price, bid_price, min_rate)
-
     except Exception as e:
         print(f"[ERROR] {start_num + i}: {e}")

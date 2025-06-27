@@ -4,7 +4,7 @@ from datetime import datetime
 import calendar
 
 # DB 파일 경로
-DB_PATH = './db/priceDB.db'
+DB_PATH = './db/yongyuk.db'
 # 저장할 CSV 파일명
 CSV_PATH = './html/price_2025_04_to_now.csv'
 
