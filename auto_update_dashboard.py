@@ -28,13 +28,14 @@ class DashboardAutomator:
         """크롤러 스크립트 실행"""
         try:
             print(f"🕷️  {crawler_script} 실행 중...")
-            result = subprocess.run([sys.executable, crawler_script], 
-                                  capture_output=True, text=True, cwd=self.base_dir)
+            # Run subprocess without capture_output so child process stdout/stderr
+            # are forwarded to this console (shows crawler logs in real time).
+            result = subprocess.run([sys.executable, crawler_script], cwd=self.base_dir)
             if result.returncode == 0:
                 print(f"✅ {crawler_script} 실행 완료")
                 return True
             else:
-                print(f"❌ {crawler_script} 실행 실패: {result.stderr}")
+                print(f"❌ {crawler_script} 실행 실패 (returncode={result.returncode})")
                 return False
         except Exception as e:
             print(f"❌ {crawler_script} 실행 중 오류: {e}")

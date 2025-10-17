@@ -19,7 +19,7 @@ print(maximum)
 price_db = PriceDB(db_path)
 price_db.init_db()
 start_num = int(maximum.values[0,0] + 1)
-for i in range(100):
+for i in range(2000):
     try:
         url = f"https://ebid.korail.com/goods/printOpen.do?gubun=1&zzbidinv={start_num+i}-00&zzstnum=00"
         driver.get(url)
@@ -27,7 +27,10 @@ for i in range(100):
         open_result = driver.find_element(By.ID, "openresult_t").text
         confirm_price = driver.find_element(By.ID, "confirm_fcast").text
 
-        if open_result == "낙찰업체상신" or open_result == "유찰 처리" or open_result == "개찰 확정(현시)" and confirm_price != '-' and confirm_price != '':
+    # open_result이 특정 값이며, confirm_price가 유효한 값일 때만 처리
+        # 주의: and/or 우선순위 때문에 괄호가 필요합니다. open_result가 조건에 해당하고
+        # confirm_price가 '-' 또는 빈 문자열이 아니어야 합니다.
+        if open_result in ("낙찰업체상신", "유찰 처리") and confirm_price not in ('-', '', None):
             if '용역' in title:
                 print(i + start_num, title, open_result, confirm_price)
                 # 날짜
@@ -38,8 +41,12 @@ for i in range(100):
                 base_price = driver.find_element(By.ID, "fcastprice").text
                 base_price = int(base_price.replace(',', ''))
 
-                # 예가
-                predict_price = int(confirm_price.replace(',', ''))
+                # 예가: 안전하게 파싱 (예: '-' 인 경우 또는 파싱 실패 시 0으로 처리)
+                try:
+                    predict_price = int(confirm_price.replace(',', ''))
+                except Exception:
+                    predict_price = 0
+                    print(f"[WARN] {start_num + i}: 예가값 파싱 실패: {confirm_price}")
 
                 # 낙찰하한율
                 url_min = f"https://ebid.korail.com/goods/printIn.do?zzbidinv={start_num + i}-00&zzstnum=00"

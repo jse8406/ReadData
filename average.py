@@ -6,6 +6,8 @@ import argparse
 # 데이터베이스 경로
 db_path = 'db/priceDB.db'
 # db_path = 'db/yongyuk.db'
+json_path = './html/avgRateDataMp.json'
+# json_path = './html/avgRateDataYy.json'
 
 parser = argparse.ArgumentParser(description="입찰 데이터의 평균 비율을 JSON 파일에 업데이트")
 parser.add_argument("-y", "--year", type=str, default="2025", required=False, help="가져올 연도 (예: 2024)")
@@ -42,7 +44,6 @@ for month in range(1, 13):
     total.append(value)
 
 print(total)
-json_path = './html/avgRateDataMp.json'
 with open(json_path, "r", encoding="utf-8") as file:
     json_data = json.load(file)
 
