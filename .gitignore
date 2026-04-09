@@ -1,6 +1,8 @@
 *.txt
 !requirements.txt
+*.log
 /__pycache__
 .claude
 claude.md
 venv/
+.playwright-mcp/
