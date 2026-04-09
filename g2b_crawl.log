@@ -53,3 +53,71 @@
 [09:10:15]   [2437/3936] R26BK01435882-000 → 스킵(보기버튼없음)
 [09:10:25]   [2438/3936] R26BK01435876-000 → 스킵(보기버튼없음)
 [09:10:39]   [2439/3936] R26BK01435868-000 → 스킵(보기버튼없음)
+[09:10:55]   [2440/3936] R26BK01435865-000 → 스킵(보기버튼없음)
+[09:11:09]   [2441/3936] R26BK01435852-000 → 스킵(보기버튼없음)
+[09:11:24]   [2442/3936] R26BK01435847-000 → 스킵(보기버튼없음)
+[09:11:39]   [2443/3936] R26BK01435843-000 → 스킵(보기버튼없음)
+[09:11:54]   [2444/3936] R26BK01435842-000 → 스킵(보기버튼없음)
+[09:12:09]   [2445/3936] R26BK01435840-000 → 스킵(보기버튼없음)
+[09:12:24]   [2446/3936] R26BK01435821-000 → 스킵(보기버튼없음)
+[09:12:39]   [2447/3936] R26BK01435795-000 → 스킵(보기버튼없음)
+[09:13:48]   [2448/3936] R26BK01435792-000 → 스킵(보기버튼없음)
+[09:13:48]   [2449/3936] R26BK01435781-000 → 에러(Message: invalid session id
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x10acdf3+10b03]
+	chromedriver!GetHandleVerifier [0x10acf24+10c34]
+	chromedriver!(No symbol) [0xe91f5e]
+	chromedriver!(No symbol) [0xecf4b7]
+	chromedriver!(No symbol) [0xefd9c6]
+	chromedriver!(No symbol) [0xef8e42]
+	chromedriver!(No symbol) [0xef8462]
+	chromedriver!(No symbol) [0xe6534e]
+	chromedriver!(No symbol) [0xe658ee]
+	chromedriver!(No symbol) [0xe65dcd]
+	chromedriver!GetHandleVerifier [0x13148b9+2785c9]
+	chromedriver!GetHandleVerifier [0x130feb5+273bc5]
+	chromedriver!GetHandleVerifier [0x132e06b+291d7b]
+	chromedriver!GetHandleVerifier [0x10c5cc8+299d8]
+	chromedriver!GetHandleVerifier [0x10cd9fd+3170d]
+	chromedriver!(No symbol) [0xe64ee9]
+	chromedriver!(No symbol) [0xe64530]
+	chromedriver!GetHandleVerifier [0x1462e9f+3c6baf]
+	KERNEL32!BaseThreadInitThunk [0x76db5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x77c3d81b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x77c3d7a1+231]
+)
+[09:14:00]   [2450/3936] R26BK01435768-000 → 에러(Message: javascript error: Cannot read properties of undefined (reading 'setValue')
+  (Session info: chrome=146.0.7680.178)
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x10acdf3+10b03]
+	chromedriver!GetHandleVerifier [0x10acf24+10c34]
+	chromedriver!(No symbol) [0xe92120]
+	chromedriver!(No symbol) [0xe98d51]
+	chromedriver!(No symbol) [0xe9b2bd]
+	chromedriver!(No symbol) [0xf1b6f1]
+	chromedriver!(No symbol) [0xefdb0c]
+	chromedriver!(No symbol) [0xf1a9a5]
+	chromedriver!(No symbol) [0xefd8a6]
+	chromedriver!(No symbol) [0xed0229]
+	chromedriver!(No symbol) [0xed0fe4]
+	chromedriver!GetHandleVerifier [0x13148b9+2785c9]
+	chromedriver!GetHandleVerifier [0x130feb5+273bc5]
+	chromedriver!GetHandleVerifier [0x132e06b+291d7b]
+	chromedriver!GetHandleVerifier [0x10c5cc8+299d8]
+	chromedriver!GetHandleVerifier [0x10cd9fd+3170d]
+	chromedriver!GetHandleVerifier [0x10b58c8+195d8]
+	chromedriver!GetHandleVerifier [0x10b5a92+197a2]
+	chromedriver!GetHandleVerifier [0x109ee9a+2baa]
+	KERNEL32!BaseThreadInitThunk [0x76db5d49+19]
+	ntdll!RtlInitializeExceptionChain [0x77c3d81b+6b]
+	ntdll!RtlGetAppContainerNamedObjectPath [0x77c3d7a1+231]
+)
+[09:14:29]   [2451/3936] R26BK01435760-000 → [저장] 2026/04/07 | 기초:175,593,000 | 예정:173,669,875 | 07
+[09:14:44]   [2452/3936] R26BK01435743-000 → 스킵(보기버튼없음)
+[09:14:53]   [2453/3936] R26BK01435734-001 → 스킵(보기버튼없음)
+[09:15:02]   [2454/3936] R26BK01435733-000 → 스킵(보기버튼없음)
+[09:15:17]   [2455/3936] R26BK01435729-000 → 스킵(보기버튼없음)
+[09:15:26]   [2456/3936] R26BK01435717-000 → 스킵(보기버튼없음)
+[09:15:43]   [2457/3936] R26BK01435705-000 → 스킵(보기버튼없음)
+[09:15:59]   [2458/3936] R26BK01435692-000 → 스킵(보기버튼없음)
+[09:16:14]   [2459/3936] R26BK01435691-000 → 스킵(보기버튼없음)

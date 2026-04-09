@@ -1,5 +1,4 @@
 *.txt
 /__pycache__
-db/*.db
 .claude
 claude.md
