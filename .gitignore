@@ -1,4 +1,6 @@
 *.txt
+!requirements.txt
 /__pycache__
 .claude
 claude.md
+venv/
