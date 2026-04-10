@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나라장터 상세조회</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/db_preloader.js"></script>
+    <style>
+
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0 20px 20px 20px; }
+
+        #loading {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9); display: flex; justify-content: center;
+            align-items: center; z-index: 1000; flex-direction: column;
+        }
+        #loading .spinner {
+            width: 50px; height: 50px; border: 5px solid #ddd;
+            border-top: 5px solid #6b93d6; border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .search-panel {
+            background: #f8f9fa; border-radius: 10px; padding: 16px 20px;
+            margin: 16px 0; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .search-panel label { font-size: 0.85em; color: #555; display: block; margin-bottom: 4px; }
+        .search-panel input {
+            padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px;
+            font-size: 0.95em; outline: none;
+        }
+        .search-panel input:focus { border-color: #6b93d6; }
+        .search-panel .field { display: flex; flex-direction: column; }
+        .search-btn {
+            background: #6b93d6; color: #fff; border: none; border-radius: 8px;
+            padding: 9px 24px; font-size: 1em; cursor: pointer; font-weight: bold;
+        }
+        .search-btn:hover { background: #4666a3; }
+        .reset-btn {
+            background: #999; color: #fff; border: none; border-radius: 8px;
+            padding: 9px 18px; font-size: 1em; cursor: pointer;
+        }
+        .reset-btn:hover { background: #777; }
+
+        #result-count { margin: 10px 0; font-size: 0.9em; color: #666; }
+
+        #results-table { width: 100%; margin-top: 8px; font-size: 13px; }
+        #results-table th { padding: 10px 8px; text-align: center; white-space: nowrap; }
+        #results-table td { padding: 8px; text-align: center; }
+        #results-table td.name-col { text-align: left; max-width: 350px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        #results-table td.num-col { text-align: right; font-family: Arial, sans-serif; }
+        #results-table tbody tr { cursor: pointer; }
+        #results-table tbody tr.selected { background-color: #d6e4f0 !important; }
+
+        .pagination {
+            display: flex; justify-content: center; gap: 4px; margin: 16px 0; flex-wrap: wrap;
+        }
+        .pagination button {
+            padding: 6px 12px; border: 1px solid #ccc; background: #fff;
+            border-radius: 4px; cursor: pointer; font-size: 0.9em;
+        }
+        .pagination button:hover { background: #e8e8e8; }
+        .pagination button.active { background: #6b93d6; color: #fff; border-color: #6b93d6; }
+        .pagination button:disabled { opacity: 0.4; cursor: default; }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.45); z-index: 100; display: none;
+            justify-content: center; align-items: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: #fff; border-radius: 12px; padding: 28px 32px;
+            max-width: 750px; width: 90%; max-height: 85vh; overflow-y: auto;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2); position: relative;
+        }
+        .modal-close {
+            position: absolute; top: 12px; right: 16px; background: none;
+            border: none; font-size: 1.5em; cursor: pointer; color: #888;
+        }
+        .modal-close:hover { color: #333; }
+        .modal h2 { margin: 0 0 8px 0; font-size: 1.15em; color: #333; }
+        .modal h3 { margin: 18px 0 8px 0; font-size: 1em; color: #555; }
+
+        .detail-info { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 20px; margin-bottom: 12px; }
+        .detail-info div { padding: 4px 0; }
+        .detail-info .label { color: #888; font-size: 0.85em; }
+        .detail-info .value { font-weight: 500; font-size: 0.95em; }
+
+        .reserve-table { width: 100%; font-size: 13px; margin-top: 6px; }
+        .reserve-table th { padding: 8px; text-align: center; }
+        .reserve-table td { padding: 6px 8px; text-align: center; }
+        .reserve-table td.num-col { text-align: right; font-family: Arial, sans-serif; }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <div class="spinner"></div>
+        <div>데이터베이스 로딩 중...</div>
+    </div>
+
+    <div class="top-bar">
+        <button class="fb" onclick="location.href='index.html'">물품</button>
+        <button class="fb" onclick="location.href='index.html'">용역</button>
+        <button class="fb" onclick="location.href='price_mp.html'">가격정보 (물품)</button>
+        <button class="fb" onclick="location.href='price.html'">가격정보 (용역)</button>
+    </div>
+
+    <header>
+        <h1>나라장터 상세조회</h1>
+    </header>
+
+    <div class="search-panel">
+        <div class="field">
+            <label>시작일</label>
+            <input type="date" id="date-from">
+        </div>
+        <div class="field">
+            <label>종료일</label>
+            <input type="date" id="date-to">
+        </div>
+        <div class="field">
+            <label>공고번호</label>
+            <input type="text" id="search-no" placeholder="공고번호 입력">
+        </div>
+        <div class="field">
+            <label>공고명</label>
+            <input type="text" id="search-nm" placeholder="공고명 입력" style="width:240px;">
+        </div>
+        <button class="search-btn" onclick="doSearch()">검색</button>
+        <button class="reset-btn" onclick="resetSearch()">초기화</button>
+    </div>
+
+    <div id="result-count"></div>
+
+    <table id="results-table">
+        <thead>
+            <tr>
+                <th>공고번호</th>
+                <th>차수</th>
+                <th>공고명</th>
+                <th>날짜</th>
+                <th>업무구분</th>
+                <th>기초금액</th>
+                <th>예정가격</th>
+                <th>예가율(%)</th>
+            </tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+    </table>
+
+    <div class="pagination" id="pagination"></div>
+
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h2 id="modal-title"></h2>
+            <div class="detail-info" id="modal-info"></div>
+            <h3>예비가격 (15개)</h3>
+            <table class="reserve-table">
+                <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>예비가격</th>
+                        <th>기초금액 대비 비율(%)</th>
+                    </tr>
+                </thead>
+                <tbody id="reserve-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <script>
+        let db = null;
+        let currentResults = [];
+        let currentPage = 1;
+        const PAGE_SIZE = 100;
+
+        const SE_CD_MAP = { '01': '물품', '03': '기술용역', '05': '일반용역', '07': '공사' };
+
+        function fmt(n) {
+            if (n == null) return '-';
+            return Number(n).toLocaleString();
+        }
+
+        function ratio(a, b) {
+            if (!b || b === 0) return '-';
+            return (a / b * 100).toFixed(2);
+        }
+
+        // HTML 엔티티 디코딩 (&#40; → ( 등)
+        const _decoder = document.createElement('textarea');
+        function decodeHtml(s) {
+            if (!s) return '';
+            _decoder.innerHTML = s;
+            return _decoder.value;
+        }
+
+        async function initDB() {
+            // 종료일 default = 오늘
+            const today = new Date();
+            const todayStr = today.getFullYear() + '-' +
+                String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                String(today.getDate()).padStart(2, '0');
+            document.getElementById('date-to').value = todayStr;
+
+            const t0 = performance.now();
+            const SQL = await initSqlJs({
+                locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+            });
+            const t1 = performance.now();
+            console.log(`[g2b detail] sql.js init: ${((t1 - t0)/1000).toFixed(2)}s`);
+
+            // db_preloader.js의 통합 함수 사용 (캐시 → 없으면 네트워크)
+            const dbBytes = await window.getG2bDbBytes();
+            const t2 = performance.now();
+            console.log(`[g2b detail] DB bytes 로드: ${((t2 - t1)/1000).toFixed(2)}s`);
+
+            db = new SQL.Database(dbBytes);
+            const t3 = performance.now();
+            console.log(`[g2b detail] sql.js DB 파싱: ${((t3 - t2)/1000).toFixed(2)}s`);
+
+            // 인덱스 있는지 확인하고 없으면 생성 (date 컬럼 검색 빠르게)
+            try {
+                db.exec("CREATE INDEX IF NOT EXISTS idx_date ON bid_results(date DESC)");
+                const t4 = performance.now();
+                console.log(`[g2b detail] 인덱스 생성: ${((t4 - t3)/1000).toFixed(2)}s`);
+            } catch (e) { console.warn(e); }
+
+            document.getElementById('loading').style.display = 'none';
+            doSearch();
+            const t5 = performance.now();
+            console.log(`[g2b detail] 첫 검색 완료: ${((t5 - t0)/1000).toFixed(2)}s (총)`);
+        }
+
+        function buildQuery() {
+            let where = [];
+            let params = {};
+            const dateFrom = document.getElementById('date-from').value;
+            const dateTo = document.getElementById('date-to').value;
+            const searchNo = document.getElementById('search-no').value.trim();
+            const searchNm = document.getElementById('search-nm').value.trim();
+
+            // HTML date input은 "2026-04-08" 형식, DB는 "2026/04/08" 형식 → 변환 필요
+            if (dateFrom) { where.push("date >= :dateFrom"); params[':dateFrom'] = dateFrom.replace(/-/g, '/'); }
+            if (dateTo) { where.push("date <= :dateTo"); params[':dateTo'] = dateTo.replace(/-/g, '/'); }
+            if (searchNo) { where.push("bid_pbanc_no LIKE :searchNo"); params[':searchNo'] = '%' + searchNo + '%'; }
+            if (searchNm) { where.push("bid_pbanc_nm LIKE :searchNm"); params[':searchNm'] = '%' + searchNm + '%'; }
+
+            const whereClause = where.length > 0 ? 'WHERE ' + where.join(' AND ') : '';
+            return { whereClause, params };
+        }
+
+        let totalCount = 0;
+
+        function doSearch() {
+            if (!db) return;
+            currentPage = 1;
+            runQuery();
+        }
+
+        function runQuery() {
+            if (!db) return;
+            const { whereClause, params } = buildQuery();
+
+            // Count
+            const countStmt = db.prepare("SELECT COUNT(*) as cnt FROM bid_results " + whereClause);
+            countStmt.bind(params);
+            countStmt.step();
+            totalCount = countStmt.getAsObject().cnt;
+            countStmt.free();
+
+            document.getElementById('result-count').textContent =
+                '총 ' + fmt(totalCount) + '건' + (totalCount > PAGE_SIZE ? ' (페이지당 ' + PAGE_SIZE + '건)' : '');
+
+            // 페이지에 해당하는 100건만 SQL로 가져옴
+            const cols = [
+                'bid_pbanc_no', 'bid_pbanc_ord', 'bid_clsf_no', 'prcm_bsne_se_cd',
+                'bid_pbanc_nm', 'date', 'base_amount', 'predict_price'
+            ];
+            for (let i = 1; i <= 15; i++) cols.push('rsve_price_' + i);
+
+            const offset = (currentPage - 1) * PAGE_SIZE;
+            const sql = "SELECT " + cols.join(', ') + " FROM bid_results " + whereClause +
+                " ORDER BY date DESC, bid_pbanc_no DESC LIMIT " + PAGE_SIZE + " OFFSET " + offset;
+            const stmt = db.prepare(sql);
+            stmt.bind(params);
+
+            currentResults = [];
+            while (stmt.step()) {
+                currentResults.push(stmt.getAsObject());
+            }
+            stmt.free();
+
+            renderPage();
+        }
+
+        function renderPage() {
+            const tbody = document.getElementById('results-body');
+
+            tbody.innerHTML = '';
+            currentResults.forEach((row, idx) => {
+                const tr = document.createElement('tr');
+                tr.onclick = () => openModal(idx);
+                const seNm = SE_CD_MAP[row.prcm_bsne_se_cd] || row.prcm_bsne_se_cd;
+                tr.innerHTML =
+                    '<td>' + (row.bid_pbanc_no || '') + '</td>' +
+                    '<td>' + (row.bid_pbanc_ord || '') + '</td>' +
+                    '<td class="name-col" title="' + decodeHtml(row.bid_pbanc_nm).replace(/"/g, '&quot;') + '">' + decodeHtml(row.bid_pbanc_nm) + '</td>' +
+                    '<td>' + (row.date || '') + '</td>' +
+                    '<td>' + seNm + '</td>' +
+                    '<td class="num-col">' + fmt(row.base_amount) + '</td>' +
+                    '<td class="num-col">' + fmt(row.predict_price) + '</td>' +
+                    '<td class="num-col">' + ratio(row.predict_price, row.base_amount) + '</td>';
+                tbody.appendChild(tr);
+            });
+
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+            const container = document.getElementById('pagination');
+            if (totalPages <= 1) { container.innerHTML = ''; return; }
+
+            let html = '';
+            html += '<button ' + (currentPage === 1 ? 'disabled' : '') + ' onclick="goPage(1)">&laquo;</button>';
+            html += '<button ' + (currentPage === 1 ? 'disabled' : '') + ' onclick="goPage(' + (currentPage - 1) + ')">&lsaquo;</button>';
+
+            let startP = Math.max(1, currentPage - 4);
+            let endP = Math.min(totalPages, startP + 9);
+            if (endP - startP < 9) startP = Math.max(1, endP - 9);
+
+            for (let p = startP; p <= endP; p++) {
+                html += '<button class="' + (p === currentPage ? 'active' : '') + '" onclick="goPage(' + p + ')">' + p + '</button>';
+            }
+
+            html += '<button ' + (currentPage === totalPages ? 'disabled' : '') + ' onclick="goPage(' + (currentPage + 1) + ')">&rsaquo;</button>';
+            html += '<button ' + (currentPage === totalPages ? 'disabled' : '') + ' onclick="goPage(' + totalPages + ')">&raquo;</button>';
+            container.innerHTML = html;
+        }
+
+        function goPage(p) {
+            const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+            if (p < 1 || p > totalPages) return;
+            currentPage = p;
+            runQuery();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openModal(idx) {
+            const row = currentResults[idx];
+            if (!row) return;
+
+            // Highlight selected row
+            document.querySelectorAll('#results-body tr').forEach(tr => tr.classList.remove('selected'));
+            const rows = document.querySelectorAll('#results-body tr');
+            if (rows[idx]) rows[idx].classList.add('selected');
+
+            const seNm = SE_CD_MAP[row.prcm_bsne_se_cd] || row.prcm_bsne_se_cd;
+
+            document.getElementById('modal-title').textContent = decodeHtml(row.bid_pbanc_nm) || '(공고명 없음)';
+
+            document.getElementById('modal-info').innerHTML =
+                '<div><span class="label">공고번호</span><br><span class="value">' + row.bid_pbanc_no + '</span></div>' +
+                '<div><span class="label">차수</span><br><span class="value">' + row.bid_pbanc_ord + '</span></div>' +
+                '<div><span class="label">분류번호</span><br><span class="value">' + row.bid_clsf_no + '</span></div>' +
+                '<div><span class="label">업무구분</span><br><span class="value">' + seNm + '</span></div>' +
+                '<div><span class="label">날짜</span><br><span class="value">' + row.date + '</span></div>' +
+                '<div><span class="label">기초금액</span><br><span class="value">' + fmt(row.base_amount) + '원</span></div>' +
+                '<div><span class="label">예정가격</span><br><span class="value">' + fmt(row.predict_price) + '원</span></div>' +
+                '<div><span class="label">예가율</span><br><span class="value">' + ratio(row.predict_price, row.base_amount) + '%</span></div>';
+
+            const reserveBody = document.getElementById('reserve-body');
+            reserveBody.innerHTML = '';
+            for (let i = 1; i <= 15; i++) {
+                const val = row['rsve_price_' + i];
+                const tr = document.createElement('tr');
+                tr.innerHTML =
+                    '<td>' + i + '</td>' +
+                    '<td class="num-col">' + fmt(val) + '</td>' +
+                    '<td class="num-col">' + (val != null ? ratio(val, row.base_amount) : '-') + '</td>';
+                reserveBody.appendChild(tr);
+            }
+
+            document.getElementById('modal-overlay').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('show');
+            document.querySelectorAll('#results-body tr').forEach(tr => tr.classList.remove('selected'));
+        }
+
+        function resetSearch() {
+            document.getElementById('date-from').value = '';
+            document.getElementById('date-to').value = '';
+            document.getElementById('search-no').value = '';
+            document.getElementById('search-nm').value = '';
+            doSearch();
+        }
+
+        // Close modal on overlay click
+        document.getElementById('modal-overlay').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // Close modal on Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // Enter key triggers search
+        document.querySelectorAll('.search-panel input').forEach(input => {
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') doSearch();
+            });
+        });
+
+        initDB();
+    </script>
+</body>
+</html>

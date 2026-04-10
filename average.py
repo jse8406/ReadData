@@ -5,8 +5,8 @@ import argparse
 
 # 데이터베이스와 JSON 파일 경로 쌍
 db_json_pairs = [
-    ('db/priceDB.db', './html/avgRateDataMp.json'),
-    ('db/yongyuk.db', './html/avgRateDataYy.json')
+    ('db/priceDB.db', './html/data/avgRateDataMp.json'),
+    ('db/yongyuk.db', './html/data/avgRateDataYy.json')
 ]
 
 parser = argparse.ArgumentParser(description="입찰 데이터의 평균 비율을 JSON 파일에 업데이트")

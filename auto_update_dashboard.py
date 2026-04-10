@@ -22,7 +22,7 @@ class DashboardAutomator:
         self.base_dir = os.path.dirname(__file__)
         self.mp_db_path = os.path.join(self.base_dir, 'db', 'priceDB.db')
         self.yy_db_path = os.path.join(self.base_dir, 'db', 'yongyuk.db')
-        self.script_js_path = os.path.join(self.base_dir, 'html', 'script.js')
+        self.script_js_path = os.path.join(self.base_dir, 'html', 'js', 'script.js')
         
     def run_crawler(self, crawler_script, args=None):
         """크롤러 스크립트 실행"""
@@ -224,34 +224,19 @@ def main():
                        help='업데이트할 연도 (기본값: 현재 연도)')
     parser.add_argument('--no-crawl', action='store_true',
                        help='크롤링 건너뛰고 기존 데이터만 사용')
-    # By default we run the CSV export after the main process. Use --no-export
-    # to disable automatic CSV export if desired.
-    parser.add_argument('--no-export', dest='export_csv', action='store_false', default=True,
-                       help='CSV 자동 내보내기(export_price_2025_04_to_now.py)를 실행하지 않음')
-    
+
     args = parser.parse_args()
-    
+
     automator = DashboardAutomator(year=args.year)
     success = automator.run_full_automation(run_crawlers=not args.no_crawl)
 
-    # 선택적으로 export_price_2025_04_to_now.py를 실행하여 CSV를 갱신할 수 있음
-    if args.export_csv:
-        print('\n📤 export_price_2025_04_to_now.py 실행 (용역 DB -> CSV)')
-        export_yy_success = automator.run_crawler('export_price_2025_04_to_now.py')
-        print('\n📤 export_price_mp_2025_04_to_now.py 실행 (물품 DB -> CSV)')
-        export_mp_success = automator.run_crawler('export_price_mp_2025_04_to_now.py')
-        if export_yy_success and export_mp_success:
-            print('✅ CSV 내보내기 완료')
-        else:
-            print('⚠️  CSV 내보내기 실패')
-        
-        # average.py 실행하여 JSON 파일 업데이트 (연도 전달)
-        print('\n📊 average.py 실행 (DB -> JSON)')
-        avg_success = automator.run_crawler('average.py', args=['--year', automator.year])
-        if avg_success:
-            print('✅ JSON 업데이트 완료')
-        else:
-            print('⚠️  JSON 업데이트 실패')
+    # average.py 실행하여 평균 예가율 JSON 업데이트
+    print('\n📊 average.py 실행 (DB -> JSON)')
+    avg_success = automator.run_crawler('average.py', args=['--year', automator.year])
+    if avg_success:
+        print('✅ JSON 업데이트 완료')
+    else:
+        print('⚠️  JSON 업데이트 실패')
 
     sys.exit(0 if success else 1)
 

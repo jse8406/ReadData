@@ -4,41 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>가격정보 (물품)</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <script src="js/db_preloader.js"></script>
     <style>
-        .fb { background: #6b93d6; border: none; border-radius: 12px; padding: 12px 28px; margin-right: 8px; font-size: 1em; color: #fff; font-weight: 500; cursor: pointer; transition: background 0.2s; font-weight: bold; }
-        .fb:hover { background: #4666a3; }
-        .top-bar { width: 100%; position: sticky; top: 0; left: 0; background: #fff; z-index: 10; padding: 20px 0 10px 0; box-sizing: border-box; }
-        /* 가격정보 테이블도 대시보드 스타일과 동일하게 */
-        #priceTable {
-            border-collapse: collapse;
-            width: 100%;
-            color: #333;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            text-align: center;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            margin: 10px auto;
+        body { margin: 0; padding: 0 20px 20px 20px; }
+        #priceTable { width: 100%; margin-top: 8px; font-size: 13px; }
+        #priceTable th { padding: 10px 8px; text-align: center; white-space: nowrap; }
+        #priceTable td { padding: 8px; text-align: center; }
+        #priceTable td.num-col { text-align: right; font-family: Arial, sans-serif; }
+        #loading { padding: 20px; text-align: center; color: #666; }
+        #count { margin: 10px 0; font-size: 0.9em; color: #666; }
+        .pagination {
+            display: flex; justify-content: center; gap: 4px; margin: 16px 0; flex-wrap: wrap;
         }
-        #priceTable th, #priceTable td {
-            border: 1px solid #ccc;
-            padding: 6px 10px;
-            text-align: center;
-            font-weight: bold;
+        .pagination button {
+            padding: 6px 12px; border: 1px solid #ccc; background: #fff;
+            border-radius: 4px; cursor: pointer; font-size: 0.9em;
         }
-        #priceTable th {
-            background: #f2f2f2;
-        }
+        .pagination button:hover { background: #e8e8e8; }
+        .pagination button.active { background: #6b93d6; color: #fff; border-color: #6b93d6; }
+        .pagination button:disabled { opacity: 0.4; cursor: default; }
     </style>
 </head>
 <body>
     <div class="top-bar">
-        <button class="fb" onclick="location.href='index.html'">대시보드로</button>
+        <button class="fb" onclick="location.href='index.html'">물품</button>
+        <button class="fb" onclick="location.href='index.html'">용역</button>
+        <button class="fb active" onclick="location.href='price_mp.html'">가격정보 (물품)</button>
+        <button class="fb" onclick="location.href='price.html'">가격정보 (용역)</button>
     </div>
     <h2>가격정보 (물품, 2025년 4월~현재)</h2>
-    <table id="priceTable">
+    <div id="count"></div>
+    <div id="loading">데이터 로딩 중...</div>
+    <table id="priceTable" style="display:none;">
         <thead>
             <tr>
                 <th>공고번호</th>
@@ -50,28 +49,100 @@
         </thead>
         <tbody></tbody>
     </table>
+    <div class="pagination" id="pagination"></div>
+
     <script>
-    fetch('price_mp_2025_04_to_now.csv')
-      .then(res => res.ok ? res.text() : Promise.reject('CSV 파일을 찾을 수 없습니다.'))
-      .then(text => {
-        const rows = text.trim().split('\n');
+    const PAGE_SIZE = 100;
+    let db = null;
+    let totalCount = 0;
+    let currentPage = 1;
+    const fmt = n => Number(n).toLocaleString();
+
+    (async () => {
+        try {
+            const SQL = await initSqlJs({
+                locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+            });
+            const dbBytes = await window.getDbBytes("priceDB.db");
+            db = new SQL.Database(dbBytes);
+
+            try { db.exec("CREATE INDEX IF NOT EXISTS idx_date ON price_set(date DESC)"); } catch (e) {}
+
+            const countStmt = db.prepare("SELECT COUNT(*) AS cnt FROM price_set WHERE date >= '2025.04.01'");
+            countStmt.step();
+            totalCount = countStmt.getAsObject().cnt;
+            countStmt.free();
+
+            document.getElementById('count').textContent = `총 ${fmt(totalCount)}건 (페이지당 ${PAGE_SIZE}건)`;
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('priceTable').style.display = '';
+
+            renderPage();
+        } catch (e) {
+            document.getElementById('loading').textContent = `오류: ${e.message}`;
+            console.error(e);
+        }
+    })();
+
+    function renderPage() {
+        const offset = (currentPage - 1) * PAGE_SIZE;
+        const stmt = db.prepare(`
+            SELECT ann_num, date, base_price, predict_price, bid_price
+            FROM price_set
+            WHERE date >= '2025.04.01'
+            ORDER BY date DESC, ann_num DESC
+            LIMIT ${PAGE_SIZE} OFFSET ${offset}
+        `);
+
         const tbody = document.querySelector('#priceTable tbody');
-        rows.slice(1).forEach(row => {
-          const cols = row.split(',');
-          const tr = document.createElement('tr');
-          cols.forEach((col, i) => {
-            const td = document.createElement('td');
-            td.textContent = i < 2 ? col : Number(col).toLocaleString();
-            td.style.textAlign = 'center';
-            td.style.fontWeight = 'bold';
-            tr.appendChild(td);
-          });
-          tbody.appendChild(tr);
-        });
-      })
-      .catch(err => {
-        document.querySelector('#priceTable tbody').innerHTML = `<tr><td colspan="5">${err}</td></tr>`;
-      });
+        const rows = [];
+        while (stmt.step()) {
+            const row = stmt.getAsObject();
+            rows.push(
+                `<tr>` +
+                `<td>${row.ann_num}</td>` +
+                `<td>${row.date}</td>` +
+                `<td class="num-col">${fmt(row.base_price)}</td>` +
+                `<td class="num-col">${fmt(row.predict_price)}</td>` +
+                `<td class="num-col">${fmt(row.bid_price)}</td>` +
+                `</tr>`
+            );
+        }
+        stmt.free();
+        tbody.innerHTML = rows.join('');
+
+        renderPagination();
+    }
+
+    function renderPagination() {
+        const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+        const container = document.getElementById('pagination');
+        if (totalPages <= 1) { container.innerHTML = ''; return; }
+
+        let html = '';
+        html += `<button ${currentPage === 1 ? 'disabled' : ''} onclick="goPage(1)">&laquo;</button>`;
+        html += `<button ${currentPage === 1 ? 'disabled' : ''} onclick="goPage(${currentPage - 1})">&lsaquo;</button>`;
+
+        let startP = Math.max(1, currentPage - 4);
+        let endP = Math.min(totalPages, startP + 9);
+        if (endP - startP < 9) startP = Math.max(1, endP - 9);
+
+        for (let p = startP; p <= endP; p++) {
+            html += `<button class="${p === currentPage ? 'active' : ''}" onclick="goPage(${p})">${p}</button>`;
+        }
+
+        html += `<button ${currentPage === totalPages ? 'disabled' : ''} onclick="goPage(${currentPage + 1})">&rsaquo;</button>`;
+        html += `<button ${currentPage === totalPages ? 'disabled' : ''} onclick="goPage(${totalPages})">&raquo;</button>`;
+        container.innerHTML = html;
+    }
+
+    function goPage(p) {
+        const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+        if (p < 1 || p > totalPages) return;
+        currentPage = p;
+        renderPage();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     </script>
 </body>
 </html>
