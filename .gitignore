@@ -6,3 +6,9 @@
 claude.md
 venv/
 .playwright-mcp/
+
+# 분할 이전의 통합 g2b DB (현재는 db/g2b_<year>.db 로 분할)
+db/g2b.db
+db/g2b.db-journal
+db/g2b.db-wal
+db/g2b.db-shm

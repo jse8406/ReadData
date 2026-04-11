@@ -7,8 +7,11 @@
     const STORE_NAME = "files";
 
     // 캐싱 대상 DB 목록
+    // g2b 는 GitHub 100MB 한계 회피를 위해 연도별 분할 (db/g2b_<year>.db)
+    // 새 연도 추가 시 아래 G2B_YEARS 배열에 연도만 추가하면 됨
+    const G2B_YEARS = [2024, 2025, 2026];
     const DBS = [
-        { key: "g2b.db", url: "../db/g2b.db" },
+        ...G2B_YEARS.map(y => ({ key: `g2b_${y}.db`, url: `../db/g2b_${y}.db` })),
         { key: "priceDB.db", url: "../db/priceDB.db" },
         { key: "yongyuk.db", url: "../db/yongyuk.db" },
     ];
@@ -156,8 +159,17 @@
         return new Uint8Array(ab);
     };
 
-    // 호환용 별칭 (g2b_detail.html에서 쓰던 이름)
-    window.getG2bDbBytes = () => window.getDbBytes("g2b.db");
+    // 연도별 g2b DB 를 모두 받아 {year: Uint8Array} 형태로 반환
+    window.getAllG2bYearDbs = async function () {
+        const results = {};
+        await Promise.all(G2B_YEARS.map(async (y) => {
+            results[y] = await window.getDbBytes(`g2b_${y}.db`);
+        }));
+        return results;
+    };
+
+    // 외부에서 G2B 연도 목록이 필요한 경우 사용
+    window.G2B_YEARS = G2B_YEARS;
 
     // 백그라운드 자동 프리로드
     function startPreload() {

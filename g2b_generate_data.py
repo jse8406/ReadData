@@ -1,8 +1,10 @@
+import glob
 import sqlite3
 import json
 import os
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "db", "g2b.db")
+DB_DIR = os.path.join(os.path.dirname(__file__), "db")
+DB_GLOB = os.path.join(DB_DIR, "g2b_*.db")
 OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "html", "data", "g2bRateData.json")
 
 # Rate bands: 99.5% ~ 101.0% in 0.1% increments (16 bands)
@@ -21,42 +23,50 @@ def get_band_index(rate):
 
 
 def main():
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
+    # 모든 연도 DB 를 순회하며 결과 누적
+    data = {}  # {year: {month: [count_per_band x 16]}}
+    db_paths = sorted(glob.glob(DB_GLOB))
+    if not db_paths:
+        print(f"WARNING: {DB_GLOB} 에 매칭되는 DB 파일이 없습니다.")
+        return
 
-    cursor.execute("""
-        SELECT date, base_amount, predict_price
-        FROM bid_results
-        WHERE base_amount > 0
-    """)
-
-    # Structure: {year: {month: [count_per_band x 16]}}
-    data = {}
-
-    for row in cursor.fetchall():
-        date_str, base_amount, predict_price = row
-        if not date_str or base_amount == 0:
+    for db_path in db_paths:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        try:
+            cursor.execute("""
+                SELECT date, base_amount, predict_price
+                FROM bid_results
+                WHERE base_amount > 0
+            """)
+        except sqlite3.OperationalError:
+            conn.close()
             continue
 
-        rate = predict_price / base_amount * 100
-        band_idx = get_band_index(rate)
-        if band_idx is None:
-            continue
+        for row in cursor.fetchall():
+            date_str, base_amount, predict_price = row
+            if not date_str or base_amount == 0:
+                continue
 
-        parts = date_str.split("/")
-        if len(parts) < 2:
-            continue
-        year = int(parts[0])
-        month = int(parts[1])
+            rate = predict_price / base_amount * 100
+            band_idx = get_band_index(rate)
+            if band_idx is None:
+                continue
 
-        if year not in data:
-            data[year] = {}
-        if month not in data[year]:
-            data[year][month] = [0] * 16
+            parts = date_str.split("/")
+            if len(parts) < 2:
+                continue
+            year = int(parts[0])
+            month = int(parts[1])
 
-        data[year][month][band_idx] += 1
+            if year not in data:
+                data[year] = {}
+            if month not in data[year]:
+                data[year][month] = [0] * 16
 
-    conn.close()
+            data[year][month][band_idx] += 1
+
+        conn.close()
 
     # Build output JSON: {year: {counts: [[16 bands x 12 months]], percentages: [[16 bands x 12 months]]}}
     result = {}

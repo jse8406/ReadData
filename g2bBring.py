@@ -491,8 +491,8 @@ def main():
     parser.add_argument('--test-bid', type=str, default='', help='특정 입찰공고번호만 테스트')
     args = parser.parse_args()
 
-    db_path = os.path.join(BASE_DIR, 'db', 'g2b.db')
-    db = G2bDB(db_path)
+    db_dir = os.path.join(BASE_DIR, 'db')
+    db = G2bDB(db_dir)
     db.init_db()
 
     if args.test:

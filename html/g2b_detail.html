@@ -186,7 +186,10 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
     <script>
-        let db = null;
+        // dbs: {year: SQL.Database} — 연도별 DB
+        // years: 내림차순 정렬된 연도 리스트 (큰 연도 = 최신 데이터 우선)
+        let dbs = {};
+        let years = [];
         let currentResults = [];
         let currentPage = 1;
         const PAGE_SIZE = 100;
@@ -226,21 +229,23 @@
             const t1 = performance.now();
             console.log(`[g2b detail] sql.js init: ${((t1 - t0)/1000).toFixed(2)}s`);
 
-            // db_preloader.js의 통합 함수 사용 (캐시 → 없으면 네트워크)
-            const dbBytes = await window.getG2bDbBytes();
+            // db_preloader.js 의 연도별 DB 통합 로더
+            const yearBytes = await window.getAllG2bYearDbs();  // {year: Uint8Array}
             const t2 = performance.now();
-            console.log(`[g2b detail] DB bytes 로드: ${((t2 - t1)/1000).toFixed(2)}s`);
+            console.log(`[g2b detail] DB bytes 로드 (${Object.keys(yearBytes).length}개 연도): ${((t2 - t1)/1000).toFixed(2)}s`);
 
-            db = new SQL.Database(dbBytes);
+            // 각 연도 DB 를 sql.js Database 인스턴스로 생성
+            for (const [y, bytes] of Object.entries(yearBytes)) {
+                dbs[y] = new SQL.Database(bytes);
+                // 검색 성능을 위한 인덱스 (DB 파일에 영구 저장 X — 메모리에서만)
+                try {
+                    dbs[y].exec("CREATE INDEX IF NOT EXISTS idx_date ON bid_results(date DESC)");
+                } catch (e) { console.warn(`[${y}] 인덱스 생성 실패:`, e); }
+            }
+            // 큰 연도(최신) 부터 내림차순으로 — date DESC 정렬에 맞춤
+            years = Object.keys(dbs).sort((a, b) => Number(b) - Number(a));
             const t3 = performance.now();
-            console.log(`[g2b detail] sql.js DB 파싱: ${((t3 - t2)/1000).toFixed(2)}s`);
-
-            // 인덱스 있는지 확인하고 없으면 생성 (date 컬럼 검색 빠르게)
-            try {
-                db.exec("CREATE INDEX IF NOT EXISTS idx_date ON bid_results(date DESC)");
-                const t4 = performance.now();
-                console.log(`[g2b detail] 인덱스 생성: ${((t4 - t3)/1000).toFixed(2)}s`);
-            } catch (e) { console.warn(e); }
+            console.log(`[g2b detail] sql.js DB 파싱 + 인덱스 (${years.length}개): ${((t3 - t2)/1000).toFixed(2)}s`);
 
             document.getElementById('loading').style.display = 'none';
             doSearch();
@@ -269,43 +274,80 @@
         let totalCount = 0;
 
         function doSearch() {
-            if (!db) return;
+            if (!years.length) return;
             currentPage = 1;
             runQuery();
         }
 
+        // 날짜 필터로 해당 연도 DB가 검색 범위와 무관하면 true (스킵 가능)
+        function yearOutOfRange(year, params) {
+            if (params[':dateFrom'] && params[':dateFrom'].substr(0, 4) > year) return true;
+            if (params[':dateTo']   && params[':dateTo'].substr(0, 4)   < year) return true;
+            return false;
+        }
+
         function runQuery() {
-            if (!db) return;
+            if (!years.length) return;
             const { whereClause, params } = buildQuery();
 
-            // Count
-            const countStmt = db.prepare("SELECT COUNT(*) as cnt FROM bid_results " + whereClause);
-            countStmt.bind(params);
-            countStmt.step();
-            totalCount = countStmt.getAsObject().cnt;
-            countStmt.free();
+            // 1. 각 연도 DB 의 매칭 카운트 (years 는 내림차순 = 최신 먼저)
+            const yearCounts = {};
+            let total = 0;
+            for (const y of years) {
+                if (yearOutOfRange(y, params)) {
+                    yearCounts[y] = 0;
+                    continue;
+                }
+                const stmt = dbs[y].prepare("SELECT COUNT(*) as cnt FROM bid_results " + whereClause);
+                stmt.bind(params);
+                stmt.step();
+                const cnt = stmt.getAsObject().cnt;
+                stmt.free();
+                yearCounts[y] = cnt;
+                total += cnt;
+            }
+            totalCount = total;
 
             document.getElementById('result-count').textContent =
                 '총 ' + fmt(totalCount) + '건' + (totalCount > PAGE_SIZE ? ' (페이지당 ' + PAGE_SIZE + '건)' : '');
 
-            // 페이지에 해당하는 100건만 SQL로 가져옴
+            // 2. 현재 페이지에 해당하는 행만 가져옴
+            // 각 연도 DB 는 내부적으로 date DESC 정렬되고, 연도 DESC 순서로 처리하므로
+            // 연도 경계를 넘어가도 글로벌 정렬이 자연스럽게 유지됨.
             const cols = [
                 'bid_pbanc_no', 'bid_pbanc_ord', 'bid_clsf_no', 'prcm_bsne_se_cd',
                 'bid_pbanc_nm', 'date', 'base_amount', 'predict_price'
             ];
             for (let i = 1; i <= 15; i++) cols.push('rsve_price_' + i);
 
-            const offset = (currentPage - 1) * PAGE_SIZE;
-            const sql = "SELECT " + cols.join(', ') + " FROM bid_results " + whereClause +
-                " ORDER BY date DESC, bid_pbanc_no DESC LIMIT " + PAGE_SIZE + " OFFSET " + offset;
-            const stmt = db.prepare(sql);
-            stmt.bind(params);
+            const startIdx = (currentPage - 1) * PAGE_SIZE;
+            const endIdx = startIdx + PAGE_SIZE;
 
             currentResults = [];
-            while (stmt.step()) {
-                currentResults.push(stmt.getAsObject());
+            let cumStart = 0;
+            for (const y of years) {
+                const cnt = yearCounts[y];
+                if (cnt === 0) continue;
+                const cumEnd = cumStart + cnt;
+
+                // 페이지가 이 연도 DB 와 겹치는가?
+                if (cumEnd <= startIdx) { cumStart = cumEnd; continue; }
+                if (cumStart >= endIdx) break;
+
+                const dbOffset = Math.max(0, startIdx - cumStart);
+                const dbLimit = Math.min(endIdx, cumEnd) - cumStart - dbOffset;
+
+                const sql = "SELECT " + cols.join(', ') + " FROM bid_results " + whereClause +
+                    " ORDER BY date DESC, bid_pbanc_no DESC LIMIT " + dbLimit + " OFFSET " + dbOffset;
+                const stmt = dbs[y].prepare(sql);
+                stmt.bind(params);
+                while (stmt.step()) {
+                    currentResults.push(stmt.getAsObject());
+                }
+                stmt.free();
+
+                cumStart = cumEnd;
             }
-            stmt.free();
 
             renderPage();
         }
