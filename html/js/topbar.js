@@ -11,13 +11,16 @@
         { label: '용역',            active: false,                        onclick: isIndex ? 'change2Yy()' : "location.href='index.html'" },
         { label: '가격정보 (물품)', active: page === 'price_mp.html',     onclick: "location.href='price_mp.html'" },
         { label: '가격정보 (용역)', active: page === 'price.html',        onclick: "location.href='price.html'" },
-        { label: '나라장터',        active: page === 'g2b.html',          onclick: "location.href='g2b.html'" },
-        { label: '나라장터 상세',   active: page === 'g2b_detail.html',   onclick: "location.href='g2b_detail.html'" },
+        { label: '나라장터',        active: page === 'g2b.html',          onclick: "location.href='g2b.html'",        disabled: true },
+        { label: '나라장터 상세',   active: page === 'g2b_detail.html',   onclick: "location.href='g2b_detail.html'", disabled: true },
     ];
 
-    const html = items.map(i =>
-        `<button class="fb${i.active ? ' active' : ''}" onclick="${i.onclick}">${i.label}</button>`
-    ).join('');
+    const html = items.map(i => {
+        if (i.disabled) {
+            return `<button class="fb" disabled>${i.label}</button>`;
+        }
+        return `<button class="fb${i.active ? ' active' : ''}" onclick="${i.onclick}">${i.label}</button>`;
+    }).join('');
 
     function render() {
         const el = document.getElementById('topbar');

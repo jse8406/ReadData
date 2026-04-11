@@ -148,6 +148,25 @@ table {
         0 2px 4px rgba(79, 70, 229, 0.35),
         0 6px 16px -2px rgba(99, 102, 241, 0.45);
 }
+
+.fb:disabled,
+.fb[disabled] {
+    background: #f1f5f9;
+    color: #94a3b8;
+    border-color: #e2e8f0;
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: 0.65;
+}
+
+.fb:disabled:hover,
+.fb[disabled]:hover {
+    background: #f1f5f9;
+    color: #94a3b8;
+    border-color: #e2e8f0;
+    transform: none;
+    box-shadow: none;
+}
 /* 테이블 전체 스타일 */
 
 /* 테이블 헤더 스타일 */
