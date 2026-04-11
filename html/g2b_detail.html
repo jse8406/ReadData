@@ -6,6 +6,7 @@
     <title>나라장터 상세조회</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="js/db_preloader.js"></script>
+    <script src="js/topbar.js" defer></script>
     <style>
 
         body { font-family: Arial, sans-serif; margin: 0; padding: 0 20px 20px 20px; }
@@ -24,7 +25,9 @@
 
         .search-panel {
             background: #f8f9fa; border-radius: 10px; padding: 16px 20px;
-            margin: 16px 0; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;
+            margin: 16px auto; max-width: 1400px;
+            display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;
+            justify-content: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
         .search-panel label { font-size: 0.85em; color: #555; display: block; margin-bottom: 4px; }
@@ -45,9 +48,9 @@
         }
         .reset-btn:hover { background: #777; }
 
-        #result-count { margin: 10px 0; font-size: 0.9em; color: #666; }
+        #result-count { margin: 10px auto; max-width: 1400px; font-size: 0.9em; color: #666; text-align: center; }
 
-        #results-table { width: 100%; margin-top: 8px; font-size: 13px; }
+        #results-table { width: 100%; max-width: 1400px; margin: 8px auto 0; font-size: 13px; }
         #results-table th { padding: 10px 8px; text-align: center; white-space: nowrap; }
         #results-table td { padding: 8px; text-align: center; }
         #results-table td.name-col { text-align: left; max-width: 350px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -85,10 +88,23 @@
         .modal h2 { margin: 0 0 8px 0; font-size: 1.15em; color: #333; }
         .modal h3 { margin: 18px 0 8px 0; font-size: 1em; color: #555; }
 
-        .detail-info { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 20px; margin-bottom: 12px; }
-        .detail-info div { padding: 4px 0; }
-        .detail-info .label { color: #888; font-size: 0.85em; }
-        .detail-info .value { font-weight: 500; font-size: 0.95em; }
+        .detail-info {
+            display: grid;
+            grid-template-columns: auto 1fr auto 1fr;
+            gap: 10px 16px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .detail-info .label {
+            color: #888;
+            font-size: 0.88em;
+            white-space: nowrap;
+            text-align: right;
+        }
+        .detail-info .value {
+            font-weight: 500;
+            font-size: 0.95em;
+        }
 
         .reserve-table { width: 100%; font-size: 13px; margin-top: 6px; }
         .reserve-table th { padding: 8px; text-align: center; }
@@ -102,12 +118,7 @@
         <div>데이터베이스 로딩 중...</div>
     </div>
 
-    <div class="top-bar">
-        <button class="fb" onclick="location.href='index.html'">물품</button>
-        <button class="fb" onclick="location.href='index.html'">용역</button>
-        <button class="fb" onclick="location.href='price_mp.html'">가격정보 (물품)</button>
-        <button class="fb" onclick="location.href='price.html'">가격정보 (용역)</button>
-    </div>
+    <div id="topbar"></div>
 
     <header>
         <h1>나라장터 상세조회</h1>
@@ -366,14 +377,14 @@
             document.getElementById('modal-title').textContent = decodeHtml(row.bid_pbanc_nm) || '(공고명 없음)';
 
             document.getElementById('modal-info').innerHTML =
-                '<div><span class="label">공고번호</span><br><span class="value">' + row.bid_pbanc_no + '</span></div>' +
-                '<div><span class="label">차수</span><br><span class="value">' + row.bid_pbanc_ord + '</span></div>' +
-                '<div><span class="label">분류번호</span><br><span class="value">' + row.bid_clsf_no + '</span></div>' +
-                '<div><span class="label">업무구분</span><br><span class="value">' + seNm + '</span></div>' +
-                '<div><span class="label">날짜</span><br><span class="value">' + row.date + '</span></div>' +
-                '<div><span class="label">기초금액</span><br><span class="value">' + fmt(row.base_amount) + '원</span></div>' +
-                '<div><span class="label">예정가격</span><br><span class="value">' + fmt(row.predict_price) + '원</span></div>' +
-                '<div><span class="label">예가율</span><br><span class="value">' + ratio(row.predict_price, row.base_amount) + '%</span></div>';
+                '<span class="label">공고번호</span><span class="value">' + row.bid_pbanc_no + '</span>' +
+                '<span class="label">차수</span><span class="value">' + row.bid_pbanc_ord + '</span>' +
+                '<span class="label">분류번호</span><span class="value">' + row.bid_clsf_no + '</span>' +
+                '<span class="label">업무구분</span><span class="value">' + seNm + '</span>' +
+                '<span class="label">날짜</span><span class="value">' + row.date + '</span>' +
+                '<span class="label">기초금액</span><span class="value">' + fmt(row.base_amount) + '&nbsp;원</span>' +
+                '<span class="label">예정가격</span><span class="value">' + fmt(row.predict_price) + '&nbsp;원</span>' +
+                '<span class="label">예가율</span><span class="value">' + ratio(row.predict_price, row.base_amount) + '&nbsp;%</span>';
 
             const reserveBody = document.getElementById('reserve-body');
             reserveBody.innerHTML = '';

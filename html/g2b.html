@@ -5,42 +5,78 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
         <script src="js/db_preloader.js" defer></script>
+        <script src="js/topbar.js" defer></script>
         <title>나라장터 Dashboard</title>
         <link rel="stylesheet" href="css/style.css">
         <style>
-            .item { float: none; margin-bottom: 50px; clear: both; }
-            .item > span { display: flex; align-items: center; }
-            .item canvas { max-width: 850px !important; max-height: 520px !important; }
-            .amtTable { margin-right: 15px; }
-            .amtTable table {
-                width: 200px;
-                font-size: 13px;
+            body { margin: 0; }
+            #sections { padding: 0 20px 20px; box-sizing: border-box; }
+
+            .item {
+                float: none !important;
+                clear: both;
+                width: 100%;
+                margin-bottom: 40px;
             }
-            .amtTable table td, .amtTable table th {
-                padding: 3px 8px;
+            .item > span {
+                display: flex !important;
+                float: none !important;
+                align-items: stretch;
+                width: 100%;
+                gap: 24px;
+                box-sizing: border-box;
             }
+
+            /* 그래프: 전체 가로의 55% 차지, 높이는 뷰포트 기준 */
+            .item .chart-wrap {
+                flex: 1 1 55%;
+                min-width: 0;
+                height: 55vh;
+                min-height: 360px;
+                background: rgb(151, 147, 147);
+                border-radius: 20px;
+                padding: 10px;
+                box-sizing: border-box;
+            }
+            .item .chart-wrap canvas {
+                width: 100% !important;
+                height: 100% !important;
+                max-width: none !important;
+                max-height: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: transparent !important;
+                border-radius: 0 !important;
+            }
+
+            /* 테이블: 전체 가로의 45% 차지, 셀 크게, 높이 그래프에 맞춤 */
             .g2b-rateTable-right {
-                overflow-x: auto;
-                margin-left: 15px;
+                flex: 1 1 45%;
+                min-width: 0;
+                overflow: auto;
+                margin-left: 0;
+                max-height: 55vh;
             }
             .g2b-rateTable-right table {
-                width: auto;
+                width: 100%;
+                margin: 0;
+                table-layout: fixed;
             }
-            .g2b-rateTable-right table th, .g2b-rateTable-right table td {
-                padding: 3px 6px;
+            .g2b-rateTable-right table th,
+            .g2b-rateTable-right table td {
+                padding: 8px 4px;
                 white-space: nowrap;
                 text-align: center;
-                font-size: 12px;
+                font-size: 13px;
+            }
+            .g2b-rateTable-right table tbody td:first-child,
+            .g2b-rateTable-right table tbody th:first-child {
+                font-weight: 600;
             }
         </style>
     </head>
     <body>
-        <div class="top-bar">
-            <button class="fb" onclick="location.href='index.html'">물품</button>
-            <button class="fb" onclick="location.href='index.html'">용역</button>
-            <button class="fb" onclick="location.href='price_mp.html'">가격정보 (물품)</button>
-            <button class="fb" onclick="location.href='price.html'">가격정보 (용역)</button>
-        </div>
+        <div id="topbar"></div>
         <header>
             <h1>나라장터 예가율 분포</h1>
         </header>

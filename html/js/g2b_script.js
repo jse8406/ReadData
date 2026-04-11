@@ -42,6 +42,8 @@ function createG2bChart(canvasId, dataArrays, year, title, maxY) {
       datasets: yDatasets,
     },
     options: {
+      responsive: true,
+      maintainAspectRatio: false,
       title: {
         display: true,
         text: `${year}년 나라장터 ${title}`,
@@ -174,9 +176,14 @@ async function init() {
       // 그래프 + 비율집계표 (가로 배치)
       const row = document.createElement("span");
 
+      // 그래프: responsive 모드로 부모 크기에 맞추려면 wrap div 필요
+      const chartWrap = document.createElement("div");
+      chartWrap.className = "chart-wrap";
+
       const rateCanvas = document.createElement("canvas");
       rateCanvas.id = `g2bRateChart${idx}`;
-      row.appendChild(rateCanvas);
+      chartWrap.appendChild(rateCanvas);
+      row.appendChild(chartWrap);
 
       const rateTableDiv = document.createElement("div");
       rateTableDiv.className = "rateTable g2b-rateTable-right";

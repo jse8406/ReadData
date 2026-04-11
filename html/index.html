@@ -5,16 +5,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
         <script src="js/db_preloader.js" defer></script>
+        <script src="js/topbar.js" defer></script>
         <title>Dashboard</title>
         <link rel="stylesheet" href="css/style.css">
     </head>
     <body>
-        <div class="top-bar">
-            <button class="fb" onclick="change2Mp()">물품</button>
-            <button class="fb" onclick="change2Yy()">용역</button>
-            <button class="fb" onclick="location.href='price_mp.html'">가격정보 (물품)</button>
-            <button class="fb" onclick="location.href='price.html'">가격정보 (용역)</button>
-        </div>
+        <div id="topbar"></div>
         <header>
             <h1>물품</h1>
         </header>

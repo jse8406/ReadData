@@ -185,8 +185,8 @@ caption {
     /* 그림자 효과 추가 */
 }
 
-h1 {
-    margin-left: 50%;
+h1, h2 {
+    text-align: center;
 }
 
 tr:nth-child(even) {

@@ -7,14 +7,15 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
     <script src="js/db_preloader.js"></script>
+    <script src="js/topbar.js" defer></script>
     <style>
         body { margin: 0; padding: 0 20px 20px 20px; }
-        #priceTable { width: 100%; margin-top: 8px; font-size: 13px; }
+        #priceTable { width: 100%; max-width: 1000px; margin: 8px auto 0; font-size: 13px; }
         #priceTable th { padding: 10px 8px; text-align: center; white-space: nowrap; }
         #priceTable td { padding: 8px; text-align: center; }
-        #priceTable td.num-col { text-align: right; font-family: Arial, sans-serif; }
+        #priceTable td.num-col { text-align: center; font-family: Arial, sans-serif; }
         #loading { padding: 20px; text-align: center; color: #666; }
-        #count { margin: 10px 0; font-size: 0.9em; color: #666; }
+        #count { margin: 10px 0; font-size: 0.9em; color: #666; text-align: center; }
         .pagination {
             display: flex; justify-content: center; gap: 4px; margin: 16px 0; flex-wrap: wrap;
         }
@@ -28,12 +29,7 @@
     </style>
 </head>
 <body>
-    <div class="top-bar">
-        <button class="fb" onclick="location.href='index.html'">물품</button>
-        <button class="fb" onclick="location.href='index.html'">용역</button>
-        <button class="fb active" onclick="location.href='price_mp.html'">가격정보 (물품)</button>
-        <button class="fb" onclick="location.href='price.html'">가격정보 (용역)</button>
-    </div>
+    <div id="topbar"></div>
     <h2>가격정보 (물품, 2025년 4월~현재)</h2>
     <div id="count"></div>
     <div id="loading">데이터 로딩 중...</div>
@@ -102,9 +98,9 @@
                 `<tr>` +
                 `<td>${row.ann_num}</td>` +
                 `<td>${row.date}</td>` +
-                `<td class="num-col">${fmt(row.base_price)}</td>` +
-                `<td class="num-col">${fmt(row.predict_price)}</td>` +
-                `<td class="num-col">${fmt(row.bid_price)}</td>` +
+                `<td class="num-col">${fmt(row.base_price)}&nbsp;원</td>` +
+                `<td class="num-col">${fmt(row.predict_price)}&nbsp;원</td>` +
+                `<td class="num-col">${fmt(row.bid_price)}&nbsp;원</td>` +
                 `</tr>`
             );
         }
