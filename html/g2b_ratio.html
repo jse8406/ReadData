@@ -287,6 +287,38 @@
             body.innerHTML = bodyHtml;
         }
 
+        function renderPagination() {
+            const totalPages = Math.ceil(totalCount / MATRIX_PAGE_SIZE);
+            const container = document.getElementById('pagination');
+            if (totalPages <= 1) { container.innerHTML = ''; return; }
+
+            let html = '';
+            html += '<button ' + (matrixPage === 1 ? 'disabled' : '') + ' onclick="goPage(1)">&laquo;</button>';
+            html += '<button ' + (matrixPage === 1 ? 'disabled' : '') + ' onclick="goPage(' + (matrixPage - 1) + ')">&lsaquo;</button>';
+
+            let startP = Math.max(1, matrixPage - 4);
+            let endP = Math.min(totalPages, startP + 9);
+            if (endP - startP < 9) startP = Math.max(1, endP - 9);
+
+            for (let p = startP; p <= endP; p++) {
+                html += '<button class="' + (p === matrixPage ? 'active' : '') + '" onclick="goPage(' + p + ')">' + p + '</button>';
+            }
+
+            html += '<button ' + (matrixPage === totalPages ? 'disabled' : '') + ' onclick="goPage(' + (matrixPage + 1) + ')">&rsaquo;</button>';
+            html += '<button ' + (matrixPage === totalPages ? 'disabled' : '') + ' onclick="goPage(' + totalPages + ')">&raquo;</button>';
+            container.innerHTML = html;
+        }
+
+        function goPage(p) {
+            const totalPages = Math.ceil(totalCount / MATRIX_PAGE_SIZE);
+            if (p < 1 || p > totalPages) return;
+            matrixPage = p;
+            runMatrixQuery(matrixPage);
+            renderMatrix();
+            renderPagination();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function doSearch() {
             if (!years.length) return;
             matrixPage = 1;
@@ -294,6 +326,7 @@
             document.getElementById('result-count').textContent = '총 ' + fmt(totalCount) + '건';
             runMatrixQuery(matrixPage);
             renderMatrix();
+            renderPagination();
         }
 
         function resetSearch() {
