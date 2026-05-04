@@ -131,6 +131,9 @@
         let dbs = {};        // {year: SQL.Database}
         let years = [];      // 내림차순 정렬된 연도
         let totalCount = 0;
+        const MATRIX_PAGE_SIZE = 20;
+        let matrixPage = 1;
+        let matrixRows = [];   // 현재 페이지의 결과
 
         function fmt(n) {
             if (n == null) return '-';
@@ -207,10 +210,90 @@
             return total;
         }
 
+        function runMatrixQuery(page) {
+            if (!years.length) return;
+            const { whereClause, params } = buildWhere();
+            const startIdx = (page - 1) * MATRIX_PAGE_SIZE;
+            const endIdx = startIdx + MATRIX_PAGE_SIZE;
+
+            // 연도별 카운트
+            const yearCounts = {};
+            for (const y of years) {
+                if (yearOutOfRange(y, params)) { yearCounts[y] = 0; continue; }
+                const stmt = dbs[y].prepare("SELECT COUNT(*) as cnt FROM bid_results " + whereClause);
+                stmt.bind(params);
+                stmt.step();
+                yearCounts[y] = stmt.getAsObject().cnt;
+                stmt.free();
+            }
+
+            // 페이지 컷 분배
+            const cols = ['bid_pbanc_no', 'bid_pbanc_ord', 'date', 'base_amount'];
+            for (let i = 1; i <= 15; i++) cols.push('rsve_price_' + i);
+
+            matrixRows = [];
+            let cumStart = 0;
+            for (const y of years) {
+                const cnt = yearCounts[y];
+                if (cnt === 0) continue;
+                const cumEnd = cumStart + cnt;
+                if (cumEnd <= startIdx) { cumStart = cumEnd; continue; }
+                if (cumStart >= endIdx) break;
+
+                const dbOffset = Math.max(0, startIdx - cumStart);
+                const dbLimit = Math.min(endIdx, cumEnd) - cumStart - dbOffset;
+
+                const sql = "SELECT " + cols.join(', ') + " FROM bid_results " + whereClause +
+                    " ORDER BY date DESC, bid_pbanc_no DESC LIMIT " + dbLimit + " OFFSET " + dbOffset;
+                const stmt = dbs[y].prepare(sql);
+                stmt.bind(params);
+                while (stmt.step()) matrixRows.push(stmt.getAsObject());
+                stmt.free();
+
+                cumStart = cumEnd;
+            }
+        }
+
+        function renderMatrix() {
+            const head = document.getElementById('matrix-head');
+            const body = document.getElementById('matrix-body');
+            head.innerHTML = '';
+            body.innerHTML = '';
+
+            if (matrixRows.length === 0) {
+                head.innerHTML = '<th class="label-col">구분</th>';
+                body.innerHTML = '<tr><td colspan="1" style="padding:24px; color:#888;">결과 없음</td></tr>';
+                return;
+            }
+
+            // 헤더: 구분 | 공고번호-차수 들
+            let headHtml = '<th class="label-col">구분</th>';
+            matrixRows.forEach(r => {
+                const label = r.bid_pbanc_no + '-' + r.bid_pbanc_ord;
+                headHtml += '<th title="' + label + ' (' + (r.date || '') + ')">' + label + '</th>';
+            });
+            head.innerHTML = headHtml;
+
+            // 행 1~15
+            let bodyHtml = '';
+            for (let i = 1; i <= 15; i++) {
+                bodyHtml += '<tr><td class="label-col">' + i + '</td>';
+                matrixRows.forEach(r => {
+                    const v = r['rsve_price_' + i];
+                    bodyHtml += '<td class="num-col">' + ratio(v, r.base_amount) + '</td>';
+                });
+                bodyHtml += '</tr>';
+            }
+            body.innerHTML = bodyHtml;
+        }
+
         function doSearch() {
             if (!years.length) return;
+            matrixPage = 1;
             totalCount = countMatching();
             document.getElementById('result-count').textContent = '총 ' + fmt(totalCount) + '건';
+            runMatrixQuery(matrixPage);
+            renderMatrix();
         }
 
         function resetSearch() {
