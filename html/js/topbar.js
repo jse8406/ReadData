@@ -13,6 +13,7 @@
         { label: '가격정보 (용역)', active: page === 'price.html',        onclick: "location.href='price.html'" },
         { label: '나라장터',        active: page === 'g2b.html',          onclick: "location.href='g2b.html'" },
         { label: '나라장터 상세',   active: page === 'g2b_detail.html',   onclick: "location.href='g2b_detail.html'" },
+        { label: '예가율 분석',     active: page === 'g2b_ratio.html',    onclick: "location.href='g2b_ratio.html'" },
     ];
 
     const html = items.map(i => {
