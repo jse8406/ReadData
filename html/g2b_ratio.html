@@ -51,18 +51,22 @@
 
         .section-title { max-width: 1400px; margin: 24px auto 8px; font-size: 1.05em; color: #333; }
 
-        #matrix-table { width: 100%; max-width: 1400px; margin: 8px auto 0; font-size: 13px; }
-        #matrix-table th { padding: 8px 6px; text-align: center; white-space: nowrap; }
-        #matrix-table td { padding: 6px; text-align: center; }
-        #matrix-table td.label-col, #matrix-table th.label-col { font-weight: bold; background: #f0f3f7; }
+        #matrix-table {
+            width: 100%; max-width: calc(100vw - 40px); margin: 8px auto 0;
+            font-size: 11px; table-layout: fixed;
+        }
+        #matrix-table th { padding: 6px 2px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        #matrix-table td { padding: 4px 2px; text-align: center; overflow: hidden; }
+        #matrix-table td.label-col, #matrix-table th.label-col { font-weight: bold; background: #f0f3f7; width: 56px; }
         #matrix-table td.num-col { font-family: Arial, sans-serif; }
 
         .pagination {
             display: flex; justify-content: center; gap: 4px; margin: 16px 0; flex-wrap: wrap;
         }
         .pagination button {
-            padding: 6px 12px; border: 1px solid #ccc; background: #fff;
-            border-radius: 4px; cursor: pointer; font-size: 0.9em;
+            min-width: 36px; padding: 6px 8px; border: 1px solid #ccc; background: #fff;
+            border-radius: 4px; cursor: pointer; font-size: 0.9em; box-sizing: border-box;
+            text-align: center;
         }
         .pagination button:hover { background: #e8e8e8; }
         .pagination button.active { background: #6b93d6; color: #fff; border-color: #6b93d6; }
@@ -385,11 +389,13 @@
                     datasets: [{
                         label: '예가율(%)',
                         data: data,
-                        borderColor: 'rgba(107,147,214,1)',
-                        backgroundColor: 'rgba(107,147,214,0.15)',
+                        borderColor: 'rgba(20, 60, 150, 1)',
+                        backgroundColor: 'rgba(20, 60, 150, 0.12)',
+                        pointBackgroundColor: 'rgba(20, 60, 150, 1)',
+                        pointBorderColor: 'rgba(20, 60, 150, 1)',
                         fill: false,
-                        pointRadius: 1.5,
-                        borderWidth: 1.5,
+                        pointRadius: 2,
+                        borderWidth: 2.5,
                         tension: 0,
                     }],
                 },
@@ -401,7 +407,13 @@
                             ticks: { autoSkip: true, maxTicksLimit: 20, fontSize: 10 },
                         }],
                         yAxes: [{
-                            ticks: { fontSize: 11, callback: v => v.toFixed(2) + '%' },
+                            ticks: {
+                                fontSize: 11,
+                                min: 98,
+                                max: 102,
+                                stepSize: 0.2,
+                                callback: v => v.toFixed(2) + '%',
+                            },
                         }],
                     },
                     tooltips: {
@@ -418,7 +430,7 @@
             };
 
             const canvas = document.getElementById('trend-chart');
-            canvas.parentElement.style.height = '320px';
+            canvas.parentElement.style.height = '520px';
             if (trendChart) {
                 trendChart.data = cfg.data;
                 trendChart.options = cfg.options;
