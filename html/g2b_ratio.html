@@ -128,10 +128,107 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
     <script>
-        // 다음 태스크에서 채움
-        function doSearch() {}
-        function resetSearch() {}
-        function setTrendLimit(n) {}
+        let dbs = {};        // {year: SQL.Database}
+        let years = [];      // 내림차순 정렬된 연도
+        let totalCount = 0;
+
+        function fmt(n) {
+            if (n == null) return '-';
+            return Number(n).toLocaleString();
+        }
+
+        function ratio(a, b) {
+            if (!b || b === 0) return '-';
+            return (a / b * 100).toFixed(2);
+        }
+
+        async function initDB() {
+            // 종료일 default = 오늘
+            const today = new Date();
+            const todayStr = today.getFullYear() + '-' +
+                String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                String(today.getDate()).padStart(2, '0');
+            document.getElementById('date-to').value = todayStr;
+
+            const t0 = performance.now();
+            const SQL = await initSqlJs({
+                locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+            });
+            const t1 = performance.now();
+            console.log(`[g2b ratio] sql.js init: ${((t1 - t0)/1000).toFixed(2)}s`);
+
+            const yearBytes = await window.getAllG2bYearDbs();
+            const t2 = performance.now();
+            console.log(`[g2b ratio] DB bytes 로드 (${Object.keys(yearBytes).length}개): ${((t2 - t1)/1000).toFixed(2)}s`);
+
+            for (const [y, bytes] of Object.entries(yearBytes)) {
+                dbs[y] = new SQL.Database(bytes);
+                try {
+                    dbs[y].exec("CREATE INDEX IF NOT EXISTS idx_date ON bid_results(date DESC)");
+                } catch (e) { console.warn(`[${y}] 인덱스 생성 실패:`, e); }
+            }
+            years = Object.keys(dbs).sort((a, b) => Number(b) - Number(a));
+            const t3 = performance.now();
+            console.log(`[g2b ratio] sql.js DB 파싱 (${years.length}개): ${((t3 - t2)/1000).toFixed(2)}s`);
+
+            document.getElementById('loading').style.display = 'none';
+            doSearch();
+        }
+
+        function buildWhere() {
+            const where = [];
+            const params = {};
+            const dateFrom = document.getElementById('date-from').value;
+            const dateTo = document.getElementById('date-to').value;
+            if (dateFrom) { where.push("date >= :dateFrom"); params[':dateFrom'] = dateFrom.replace(/-/g, '/'); }
+            if (dateTo)   { where.push("date <= :dateTo");   params[':dateTo']   = dateTo.replace(/-/g, '/'); }
+            const whereClause = where.length ? 'WHERE ' + where.join(' AND ') : '';
+            return { whereClause, params };
+        }
+
+        function yearOutOfRange(year, params) {
+            if (params[':dateFrom'] && params[':dateFrom'].substr(0, 4) > year) return true;
+            if (params[':dateTo']   && params[':dateTo'].substr(0, 4)   < year) return true;
+            return false;
+        }
+
+        function countMatching() {
+            if (!years.length) return 0;
+            const { whereClause, params } = buildWhere();
+            let total = 0;
+            for (const y of years) {
+                if (yearOutOfRange(y, params)) continue;
+                const stmt = dbs[y].prepare("SELECT COUNT(*) as cnt FROM bid_results " + whereClause);
+                stmt.bind(params);
+                stmt.step();
+                total += stmt.getAsObject().cnt;
+                stmt.free();
+            }
+            return total;
+        }
+
+        function doSearch() {
+            if (!years.length) return;
+            totalCount = countMatching();
+            document.getElementById('result-count').textContent = '총 ' + fmt(totalCount) + '건';
+        }
+
+        function resetSearch() {
+            document.getElementById('date-from').value = '';
+            document.getElementById('date-to').value = '';
+            doSearch();
+        }
+
+        function setTrendLimit(n) { /* Task 5 */ }
+
+        // Enter 키로 검색
+        document.querySelectorAll('.search-panel input').forEach(input => {
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') doSearch();
+            });
+        });
+
+        initDB();
     </script>
 </body>
 </html>
