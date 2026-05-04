@@ -80,10 +80,12 @@
         }
         #trend-toggle button.active { background: #6b93d6; color: #fff; border-color: #6b93d6; }
         #trend-toggle button:disabled { opacity: 0.4; cursor: default; }
-        #trend-chart-wrap {
+        #trend-chart-card {
             background: #fff; padding: 12px; border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            position: relative; box-sizing: border-box; height: 75vh;
+        }
+        #trend-chart-wrap {
+            position: relative; height: 75vh; width: 100%;
         }
         #trend-chart-wrap canvas { display: block; }
     </style>
@@ -129,8 +131,10 @@
             <button data-limit="200" onclick="setTrendLimit(200)">최근 200건</button>
             <button data-limit="300" onclick="setTrendLimit(300)">최근 300건</button>
         </div>
-        <div id="trend-chart-wrap">
-            <canvas id="trend-chart"></canvas>
+        <div id="trend-chart-card">
+            <div id="trend-chart-wrap">
+                <canvas id="trend-chart"></canvas>
+            </div>
         </div>
     </div>
 
