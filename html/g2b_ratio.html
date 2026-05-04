@@ -446,7 +446,11 @@
             doSearch();
         }
 
-        function setTrendLimit(n) { /* Task 5 */ }
+        function setTrendLimit(n) {
+            if (!TREND_OPTIONS.includes(n)) return;
+            currentLimit = n;
+            renderTrend();
+        }
 
         // Enter 키로 검색
         document.querySelectorAll('.search-panel input').forEach(input => {
