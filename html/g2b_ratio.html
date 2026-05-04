@@ -134,6 +134,11 @@
         const MATRIX_PAGE_SIZE = 20;
         let matrixPage = 1;
         let matrixRows = [];   // 현재 페이지의 결과
+        const TREND_MAX = 300;
+        const TREND_OPTIONS = [100, 200, 300];
+        let trendData = [];     // 최근 300건 (date DESC) — slice 후 reverse 해서 표시
+        let currentLimit = 100;
+        let trendChart = null;
 
         function fmt(n) {
             if (n == null) return '-';
@@ -319,6 +324,110 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        function runTrendQuery() {
+            if (!years.length) { trendData = []; return; }
+            const { whereClause, params } = buildWhere();
+
+            // 각 연도에서 TREND_MAX 만큼씩 가져온 뒤 합쳐서 정렬, 상위 TREND_MAX 만 유지
+            const cols = ['bid_pbanc_no', 'bid_pbanc_ord', 'date', 'base_amount', 'predict_price'];
+            const merged = [];
+            for (const y of years) {
+                if (yearOutOfRange(y, params)) continue;
+                const sql = "SELECT " + cols.join(', ') + " FROM bid_results " + whereClause +
+                    " ORDER BY date DESC, bid_pbanc_no DESC LIMIT " + TREND_MAX;
+                const stmt = dbs[y].prepare(sql);
+                stmt.bind(params);
+                while (stmt.step()) merged.push(stmt.getAsObject());
+                stmt.free();
+                if (merged.length >= TREND_MAX * 2) break;  // 여유분 확보 후 조기 종료
+            }
+            // base_amount > 0 인 것만 + 예가율 계산
+            trendData = merged
+                .filter(r => r.base_amount && r.base_amount > 0)
+                .sort((a, b) => {
+                    if (a.date !== b.date) return a.date < b.date ? 1 : -1;
+                    return a.bid_pbanc_no < b.bid_pbanc_no ? 1 : -1;
+                })
+                .slice(0, TREND_MAX)
+                .map(r => ({
+                    label: r.bid_pbanc_no + '-' + r.bid_pbanc_ord,
+                    date: r.date,
+                    rate: r.predict_price / r.base_amount * 100,
+                }));
+        }
+
+        function renderTrend() {
+            const wrap = document.getElementById('trend-section');
+            if (trendData.length === 0) {
+                wrap.style.display = 'none';
+                return;
+            }
+            wrap.style.display = '';
+
+            // 토글 버튼 활성/비활성
+            document.querySelectorAll('#trend-toggle button').forEach(btn => {
+                const lim = Number(btn.dataset.limit);
+                btn.disabled = trendData.length < lim;
+                btn.classList.toggle('active', lim === currentLimit);
+            });
+
+            // 가용 데이터에 맞춰 currentLimit 조정 (예: 검색 결과 80건이면 100/200/300 모두 disabled → 가용 최대값 사용)
+            const effective = Math.min(currentLimit, trendData.length);
+            const slice = trendData.slice(0, effective).reverse();  // 시간 오름차순
+            const labels = slice.map(d => d.label);
+            const data = slice.map(d => Number(d.rate.toFixed(3)));
+            const tooltipMeta = slice.map(d => d.date);
+
+            const cfg = {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '예가율(%)',
+                        data: data,
+                        borderColor: 'rgba(107,147,214,1)',
+                        backgroundColor: 'rgba(107,147,214,0.15)',
+                        fill: false,
+                        pointRadius: 1.5,
+                        borderWidth: 1.5,
+                        tension: 0,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        xAxes: [{
+                            ticks: { autoSkip: true, maxTicksLimit: 20, fontSize: 10 },
+                        }],
+                        yAxes: [{
+                            ticks: { fontSize: 11, callback: v => v.toFixed(2) + '%' },
+                        }],
+                    },
+                    tooltips: {
+                        callbacks: {
+                            title: items => {
+                                const i = items[0].index;
+                                return labels[i] + ' (' + tooltipMeta[i] + ')';
+                            },
+                            label: item => '예가율: ' + Number(item.value).toFixed(3) + '%',
+                        },
+                    },
+                    legend: { display: false },
+                },
+            };
+
+            const canvas = document.getElementById('trend-chart');
+            canvas.parentElement.style.height = '320px';
+            if (trendChart) {
+                trendChart.data = cfg.data;
+                trendChart.options = cfg.options;
+                trendChart.update();
+            } else {
+                trendChart = new Chart(canvas.getContext('2d'), cfg);
+            }
+        }
+
         function doSearch() {
             if (!years.length) return;
             matrixPage = 1;
@@ -327,6 +436,8 @@
             runMatrixQuery(matrixPage);
             renderMatrix();
             renderPagination();
+            runTrendQuery();
+            renderTrend();
         }
 
         function resetSearch() {
