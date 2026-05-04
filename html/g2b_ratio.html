@@ -87,7 +87,16 @@
         #trend-chart-wrap {
             position: relative; height: 75vh; width: 100%;
         }
-        #trend-chart-wrap canvas { display: block; }
+        /* style.css의 글로벌 canvas {max-width:800;max-height:500;...} 무력화 */
+        #trend-chart-wrap canvas {
+            display: block !important;
+            max-width: none !important;
+            max-height: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+        }
     </style>
 </head>
 <body>
