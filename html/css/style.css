@@ -190,15 +190,16 @@ table {
     position: absolute;
     top: calc(100% + 4px);
     left: 0;
-    min-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
     background: #ffffff;
     border: 1px solid #c7d2fe;
     border-radius: 10px;
     box-shadow: 0 8px 24px -4px rgba(99, 102, 241, 0.18), 0 4px 8px rgba(99, 102, 241, 0.08);
-    padding: 6px;
+    padding: 4px;
     z-index: 200;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
     white-space: nowrap;
 }
 /* 버튼과 메뉴 사이 4px 갭에 마우스가 들어가도 hover 유지되도록 투명 브릿지 */
@@ -215,6 +216,8 @@ table {
     display: flex;
 }
 .fb-item {
+    width: 100%;
+    box-sizing: border-box;
     background: transparent;
     color: #4338ca;
     border: 1px solid transparent;
@@ -222,7 +225,7 @@ table {
     padding: 8px 14px;
     font-size: 13px;
     font-weight: 500;
-    text-align: left;
+    text-align: center;
     cursor: pointer;
     transition: all 0.12s ease;
 }
