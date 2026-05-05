@@ -293,9 +293,12 @@
                 return;
             }
 
+            // 차트와 동일하게 왼쪽=과거, 오른쪽=최신 (DB는 DESC라 reverse)
+            const cols = matrixRows.slice().reverse();
+
             // 헤더: 구분 | 공고번호-차수 들
             let headHtml = '<th class="label-col">구분</th>';
-            matrixRows.forEach(r => {
+            cols.forEach(r => {
                 const label = r.bid_pbanc_no + '-' + r.bid_pbanc_ord;
                 headHtml += '<th title="' + label + ' (' + (r.date || '') + ')">' + label + '</th>';
             });
@@ -305,7 +308,7 @@
             let bodyHtml = '';
             for (let i = 1; i <= 15; i++) {
                 bodyHtml += '<tr><td class="label-col">' + i + '</td>';
-                matrixRows.forEach(r => {
+                cols.forEach(r => {
                     const v = r['rsve_price_' + i];
                     bodyHtml += '<td class="num-col">' + ratio(v, r.base_amount) + '</td>';
                 });
