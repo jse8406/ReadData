@@ -201,6 +201,16 @@ table {
     gap: 4px;
     white-space: nowrap;
 }
+/* 버튼과 메뉴 사이 4px 갭에 마우스가 들어가도 hover 유지되도록 투명 브릿지 */
+.fb-menu::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: transparent;
+}
 .fb-group:hover .fb-menu {
     display: flex;
 }
