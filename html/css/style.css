@@ -167,6 +167,67 @@ table {
     transform: none;
     box-shadow: none;
 }
+
+/* 드롭다운 그룹 */
+.fb-group {
+    position: relative;
+}
+.fb-group .fb-caret {
+    /* style.css 글로벌 span{display:flex;float:left} 무력화 */
+    display: inline-block !important;
+    float: none !important;
+    margin-left: 6px;
+    font-size: 10px;
+    opacity: 0.75;
+    vertical-align: middle;
+}
+.fb-parent {
+    /* 부모 버튼은 라벨+caret 가로 정렬 보장 */
+    white-space: nowrap;
+}
+.fb-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 100%;
+    background: #ffffff;
+    border: 1px solid #c7d2fe;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px -4px rgba(99, 102, 241, 0.18), 0 4px 8px rgba(99, 102, 241, 0.08);
+    padding: 6px;
+    z-index: 200;
+    flex-direction: column;
+    gap: 4px;
+    white-space: nowrap;
+}
+.fb-group:hover .fb-menu,
+.fb-group.open .fb-menu {
+    display: flex;
+}
+.fb-item {
+    background: transparent;
+    color: #4338ca;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.12s ease;
+}
+.fb-item:hover {
+    background: #eef2ff;
+    color: #3730a3;
+    border-color: #c7d2fe;
+}
+.fb-item.active {
+    background: linear-gradient(180deg, #6366f1 0%, #5856eb 100%);
+    color: #ffffff;
+    border-color: #4f46e5;
+}
+
 /* 테이블 전체 스타일 */
 
 /* 테이블 헤더 스타일 */
