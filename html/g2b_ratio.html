@@ -81,6 +81,16 @@
         }
         #trend-toggle button.active { background: #6b93d6; color: #fff; border-color: #6b93d6; }
         #trend-toggle button:disabled { opacity: 0.4; cursor: default; }
+        #trend-toggle .trend-custom-wrap {
+            display: inline-flex; align-items: center; gap: 6px;
+            margin-left: 8px; padding-left: 12px; border-left: 1px solid #ddd;
+        }
+        #trend-toggle .trend-custom-wrap input {
+            width: 100px; padding: 6px 10px; border: 1px solid #ccc;
+            border-radius: 6px; font-size: 0.9em; outline: none;
+        }
+        #trend-toggle .trend-custom-wrap input:focus { border-color: #6b93d6; }
+        #trend-toggle .trend-custom-wrap button { padding: 6px 14px; }
         #trend-chart-card {
             background: #fff; padding: 12px; border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
@@ -140,6 +150,10 @@
             <button data-limit="100" onclick="setTrendLimit(100)">최근 100건</button>
             <button data-limit="200" onclick="setTrendLimit(200)">최근 200건</button>
             <button data-limit="300" onclick="setTrendLimit(300)">최근 300건</button>
+            <span class="trend-custom-wrap">
+                <input type="number" id="trend-custom" min="1" placeholder="직접 입력" />
+                <button onclick="applyCustomTrendLimit()">적용</button>
+            </span>
         </div>
         <div id="trend-chart-card">
             <div id="trend-chart-wrap">
@@ -350,22 +364,25 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function runTrendQuery() {
-            if (!years.length) { trendData = []; return; }
+        let trendCachedSize = 0;  // 현재 trendData 가 어느 limit 으로 fetch 됐는지
+
+        function runTrendQuery(targetSize) {
+            if (!years.length) { trendData = []; trendCachedSize = 0; return; }
+            const limit = Math.max(targetSize || TREND_MAX, TREND_MAX);
             const { whereClause, params } = buildWhere();
 
-            // 각 연도에서 TREND_MAX 만큼씩 가져온 뒤 합쳐서 정렬, 상위 TREND_MAX 만 유지
+            // 각 연도에서 limit 만큼씩 가져온 뒤 합쳐서 정렬, 상위 limit 만 유지
             const cols = ['bid_pbanc_no', 'bid_pbanc_ord', 'date', 'base_amount', 'predict_price'];
             const merged = [];
             for (const y of years) {
                 if (yearOutOfRange(y, params)) continue;
                 const sql = "SELECT " + cols.join(', ') + " FROM bid_results " + whereClause +
-                    " ORDER BY date DESC, bid_pbanc_no DESC LIMIT " + TREND_MAX;
+                    " ORDER BY date DESC, bid_pbanc_no DESC LIMIT " + limit;
                 const stmt = dbs[y].prepare(sql);
                 stmt.bind(params);
                 while (stmt.step()) merged.push(stmt.getAsObject());
                 stmt.free();
-                if (merged.length >= TREND_MAX * 2) break;  // 여유분 확보 후 조기 종료
+                if (merged.length >= limit * 2) break;  // 여유분 확보 후 조기 종료
             }
             // base_amount > 0 인 것만 + 예가율 계산
             trendData = merged
@@ -374,12 +391,13 @@
                     if (a.date !== b.date) return a.date < b.date ? 1 : -1;
                     return a.bid_pbanc_no < b.bid_pbanc_no ? 1 : -1;
                 })
-                .slice(0, TREND_MAX)
+                .slice(0, limit)
                 .map(r => ({
                     label: r.bid_pbanc_no + '-' + r.bid_pbanc_ord,
                     date: r.date,
                     rate: r.predict_price / r.base_amount * 100,
                 }));
+            trendCachedSize = limit;
         }
 
         function renderTrend() {
@@ -469,7 +487,7 @@
             runMatrixQuery(matrixPage);
             renderMatrix();
             renderPagination();
-            runTrendQuery();
+            runTrendQuery(currentLimit);  // 사용자 커스텀 limit 유지
             renderTrend();
         }
 
@@ -480,9 +498,23 @@
         }
 
         function setTrendLimit(n) {
-            if (!TREND_OPTIONS.includes(n)) return;
-            currentLimit = n;
+            if (!Number.isFinite(n) || n < 1) return;
+            const target = Math.min(n, totalCount);
+            if (target > trendCachedSize) {
+                runTrendQuery(target);
+            }
+            currentLimit = target;
             renderTrend();
+        }
+
+        function applyCustomTrendLimit() {
+            const inp = document.getElementById('trend-custom');
+            const v = parseInt(inp.value, 10);
+            if (!Number.isFinite(v) || v < 1) {
+                inp.focus();
+                return;
+            }
+            setTrendLimit(v);
         }
 
         // Enter 키로 검색
@@ -490,6 +522,13 @@
             input.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') doSearch();
             });
+        });
+        // 사용자 입력 N건 — Enter 키로 적용
+        document.getElementById('trend-custom').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                applyCustomTrendLimit();
+            }
         });
 
         initDB();
