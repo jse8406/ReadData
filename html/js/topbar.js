@@ -54,22 +54,7 @@
         if (!el) return;
         el.className = 'top-bar';
         el.innerHTML = html;
-
-        // 부모 버튼 클릭 → 같은 그룹 토글, 다른 그룹 닫기 (호버 안 되는 환경 대응)
-        el.querySelectorAll('.fb-group').forEach(grp => {
-            const parent = grp.querySelector('.fb-parent');
-            parent.addEventListener('click', e => {
-                e.stopPropagation();
-                const wasOpen = grp.classList.contains('open');
-                el.querySelectorAll('.fb-group.open').forEach(g => g.classList.remove('open'));
-                if (!wasOpen) grp.classList.add('open');
-            });
-        });
-
-        // 바깥 클릭 → 모든 드롭다운 닫기
-        document.addEventListener('click', () => {
-            el.querySelectorAll('.fb-group.open').forEach(g => g.classList.remove('open'));
-        });
+        // 드롭다운은 CSS hover 만 사용 (클릭으로 고정 토글 X)
     }
 
     if (document.readyState === 'loading') {

@@ -201,8 +201,7 @@ table {
     gap: 4px;
     white-space: nowrap;
 }
-.fb-group:hover .fb-menu,
-.fb-group.open .fb-menu {
+.fb-group:hover .fb-menu {
     display: flex;
 }
 .fb-item {
