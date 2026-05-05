@@ -8,6 +8,7 @@
     <script src="js/db_preloader.js"></script>
     <script src="js/topbar.js" defer></script>
     <style>
+        :root { --content-max: min(96vw, 2400px); }
         body { font-family: Arial, sans-serif; margin: 0; padding: 0 20px 20px 20px; }
 
         #loading {
@@ -24,7 +25,7 @@
 
         .search-panel {
             background: #f8f9fa; border-radius: 10px; padding: 16px 20px;
-            margin: 16px auto; max-width: 1400px;
+            margin: 16px auto; max-width: var(--content-max);
             display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;
             justify-content: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
@@ -47,12 +48,12 @@
         }
         .reset-btn:hover { background: #777; }
 
-        #result-count { margin: 10px auto; max-width: 1400px; font-size: 0.9em; color: #666; text-align: center; }
+        #result-count { margin: 10px auto; max-width: var(--content-max); font-size: 0.9em; color: #666; text-align: center; }
 
-        .section-title { max-width: 1400px; margin: 24px auto 8px; font-size: 1.05em; color: #333; }
+        .section-title { max-width: var(--content-max); margin: 24px auto 8px; font-size: 1.05em; color: #333; }
 
         #matrix-table {
-            width: 100%; max-width: calc(100vw - 40px); margin: 8px auto 0;
+            width: 100%; max-width: var(--content-max); margin: 8px auto 0;
             font-size: 11px; table-layout: fixed;
         }
         #matrix-table th { padding: 6px 2px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -72,7 +73,7 @@
         .pagination button.active { background: #6b93d6; color: #fff; border-color: #6b93d6; }
         .pagination button:disabled { opacity: 0.4; cursor: default; }
 
-        #trend-section { max-width: 1400px; margin: 8px auto 0; }
+        #trend-section { max-width: var(--content-max); margin: 8px auto 0; }
         #trend-toggle { display: flex; justify-content: center; gap: 8px; margin: 8px 0; }
         #trend-toggle button {
             padding: 6px 16px; border: 1px solid #ccc; background: #fff;
