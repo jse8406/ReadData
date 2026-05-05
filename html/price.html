@@ -9,8 +9,9 @@
     <script src="js/db_preloader.js"></script>
     <script src="js/topbar.js" defer></script>
     <style>
+        :root { --content-max: min(96vw, 2400px); }
         body { margin: 0; padding: 0 20px 20px 20px; }
-        #priceTable { width: 100%; max-width: 1000px; margin: 8px auto 0; font-size: 13px; }
+        #priceTable { width: 100%; max-width: var(--content-max); margin: 8px auto 0; font-size: 13px; }
         #priceTable th { padding: 10px 8px; text-align: center; white-space: nowrap; }
         #priceTable td { padding: 8px; text-align: center; }
         #priceTable td.num-col { text-align: center; font-family: Arial, sans-serif; }
