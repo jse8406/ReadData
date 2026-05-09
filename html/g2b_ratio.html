@@ -51,6 +51,23 @@
         #result-count { margin: 10px auto; max-width: var(--content-max); font-size: 0.9em; color: #666; text-align: center; }
 
         .section-title { max-width: var(--content-max); margin: 24px auto 8px; font-size: 1.05em; color: #333; }
+        .section-title-row {
+            max-width: var(--content-max); margin: 24px auto 8px;
+            display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+        }
+        .section-title-row .section-title { margin: 0; }
+        .download-controls { display: flex; align-items: center; gap: 8px; }
+        .download-controls select {
+            padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px;
+            font-size: 0.9em; background: #fff; outline: none;
+        }
+        .download-controls select:focus { border-color: #6b93d6; }
+        .download-btn {
+            background: #2e7d4f; color: #fff; border: none; border-radius: 6px;
+            padding: 7px 16px; font-size: 0.9em; cursor: pointer; font-weight: bold;
+        }
+        .download-btn:hover { background: #1f5d39; }
+        .download-btn:disabled { opacity: 0.4; cursor: default; }
 
         #matrix-table {
             width: 100%; max-width: var(--content-max); margin: 8px auto 0;
@@ -137,7 +154,14 @@
 
     <div id="result-count"></div>
 
-    <div class="section-title">예비가격 비율 매트릭스 (기초금액 대비, %)</div>
+    <div class="section-title-row">
+        <div class="section-title">예비가격 비율 매트릭스 (기초금액 대비, %)</div>
+        <div class="download-controls">
+            <label for="download-year" style="font-size: 0.9em; color: #555;">엑셀 다운로드:</label>
+            <select id="download-year"></select>
+            <button class="download-btn" id="download-btn" onclick="downloadMatrixExcel()">다운로드</button>
+        </div>
+    </div>
     <table id="matrix-table">
         <thead><tr id="matrix-head"></tr></thead>
         <tbody id="matrix-body"></tbody>
@@ -164,6 +188,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         let dbs = {};        // {year: SQL.Database}
         let years = [];      // 내림차순 정렬된 연도
@@ -215,6 +240,10 @@
             years = Object.keys(dbs).sort((a, b) => Number(b) - Number(a));
             const t3 = performance.now();
             console.log(`[g2b ratio] sql.js DB 파싱 (${years.length}개): ${((t3 - t2)/1000).toFixed(2)}s`);
+
+            // 다운로드 연도 셀렉트 채우기 (최신 연도 default)
+            const yearSel = document.getElementById('download-year');
+            yearSel.innerHTML = years.map(y => `<option value="${y}">${y}년</option>`).join('');
 
             document.getElementById('loading').style.display = 'none';
             doSearch();
@@ -505,6 +534,80 @@
             }
             currentLimit = target;
             renderTrend();
+        }
+
+        function downloadMatrixExcel() {
+            const yearSel = document.getElementById('download-year');
+            const btn = document.getElementById('download-btn');
+            const year = yearSel.value;
+            if (!year || !dbs[year]) {
+                alert('선택된 연도의 데이터가 없습니다.');
+                return;
+            }
+
+            const origLabel = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = '생성 중...';
+
+            // setTimeout 으로 UI 업데이트 후 무거운 작업 실행
+            setTimeout(() => {
+                try {
+                    const cols = ['bid_pbanc_no', 'bid_pbanc_ord', 'date', 'base_amount'];
+                    for (let i = 1; i <= 15; i++) cols.push('rsve_price_' + i);
+
+                    const sql = "SELECT " + cols.join(', ') + " FROM bid_results " +
+                        "ORDER BY date DESC, bid_pbanc_no DESC";
+                    const stmt = dbs[year].prepare(sql);
+                    const rows = [];
+                    while (stmt.step()) rows.push(stmt.getAsObject());
+                    stmt.free();
+
+                    if (rows.length === 0) {
+                        alert(year + '년 데이터가 없습니다.');
+                        return;
+                    }
+
+                    // 헤더: 공고번호 | 차수 | 날짜 | 기초금액 | 비율1 ~ 비율15
+                    const header = ['공고번호', '차수', '날짜', '기초금액'];
+                    for (let i = 1; i <= 15; i++) header.push('비율' + i + '(%)');
+
+                    const aoa = [header];
+                    for (const r of rows) {
+                        const row = [
+                            r.bid_pbanc_no,
+                            r.bid_pbanc_ord,
+                            r.date,
+                            r.base_amount,
+                        ];
+                        for (let i = 1; i <= 15; i++) {
+                            const v = r['rsve_price_' + i];
+                            if (v == null || !r.base_amount) {
+                                row.push(null);
+                            } else {
+                                row.push(Number((v / r.base_amount * 100).toFixed(4)));
+                            }
+                        }
+                        aoa.push(row);
+                    }
+
+                    const ws = XLSX.utils.aoa_to_sheet(aoa);
+                    // 컬럼 너비 설정
+                    ws['!cols'] = [
+                        { wch: 16 }, { wch: 6 }, { wch: 12 }, { wch: 14 },
+                        ...Array(15).fill({ wch: 10 }),
+                    ];
+
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, year + '년');
+                    XLSX.writeFile(wb, '예비가격비율매트릭스_' + year + '.xlsx');
+                } catch (e) {
+                    console.error('[엑셀 다운로드 실패]', e);
+                    alert('엑셀 파일 생성 중 오류가 발생했습니다: ' + e.message);
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = origLabel;
+                }
+            }, 30);
         }
 
         function applyCustomTrendLimit() {

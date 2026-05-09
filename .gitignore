@@ -1,11 +1,14 @@
 *.txt
 !requirements.txt
 *.log
-/__pycache__
-.claude
-claude.md
+__pycache__/
 venv/
 .playwright-mcp/
+
+# Claude Code: 공유 설정/훅은 커밋, 개인 설정은 무시
+.claude/*
+!.claude/settings.json
+claude.md
 
 # 분할 이전의 통합 g2b DB (현재는 db/g2b_<year>.db 로 분할)
 db/g2b.db
