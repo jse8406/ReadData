@@ -22,7 +22,7 @@ from db.g2b_module import G2bDB
 
 print = partial(print, flush=True)
 chromedriver_autoinstaller.install()
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def create_driver():

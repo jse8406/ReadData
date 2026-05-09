@@ -9,7 +9,7 @@ import os
 import sys
 import logging
 from datetime import datetime
-from auto_update_dashboard import DashboardAutomator
+from pipeline.auto_update_dashboard import DashboardAutomator
 
 # 로그 설정
 logging.basicConfig(
@@ -43,9 +43,9 @@ def scheduled_update():
         return False
 
 if __name__ == "__main__":
-    # 작업 디렉토리를 스크립트 위치로 변경
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    os.chdir(script_dir)
-    
+    # 작업 디렉토리를 프로젝트 루트로 변경 (pipeline/ 의 상위)
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    os.chdir(project_root)
+
     success = scheduled_update()
     sys.exit(0 if success else 1)

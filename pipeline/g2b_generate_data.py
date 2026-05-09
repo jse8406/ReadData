@@ -3,9 +3,10 @@ import sqlite3
 import json
 import os
 
-DB_DIR = os.path.join(os.path.dirname(__file__), "db")
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DB_DIR = os.path.join(_PROJECT_ROOT, "db")
 DB_GLOB = os.path.join(DB_DIR, "g2b_*.db")
-OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "html", "data", "g2bRateData.json")
+OUTPUT_PATH = os.path.join(_PROJECT_ROOT, "html", "data", "g2bRateData.json")
 
 # Rate bands: 99.5% ~ 101.0% in 0.1% increments (16 bands)
 RATE_BANDS = [round(99.5 + 0.1 * i, 1) for i in range(16)]

@@ -27,16 +27,16 @@ set /p choice=번호를 입력하세요 (1-4):
 if "%choice%"=="1" (
     echo.
     echo 🚀 전체 자동화를 시작합니다...
-    python auto_update_dashboard.py
+    python -m pipeline.auto_update_dashboard
 ) else if "%choice%"=="2" (
     echo.
     echo 📊 기존 데이터로 대시보드를 업데이트합니다...
-    python auto_update_dashboard.py --no-crawl
+    python -m pipeline.auto_update_dashboard --no-crawl
 ) else if "%choice%"=="3" (
     set /p year=업데이트할 연도를 입력하세요 (예: 2025): 
     echo.
     echo 📅 %year%년 데이터로 대시보드를 업데이트합니다...
-    python auto_update_dashboard.py --year %year%
+    python -m pipeline.auto_update_dashboard --year %year%
 ) else if "%choice%"=="4" (
     echo 종료합니다.
     exit /b 0

@@ -14,35 +14,34 @@ import pandas as pd
 import re
 import os
 from datetime import datetime
-from count import count_nums
+from pipeline.count import count_nums
 
 class DashboardAutomator:
     def __init__(self, year=None):
         self.year = year or str(datetime.now().year)
-        self.base_dir = os.path.dirname(__file__)
+        # 프로젝트 루트 = 이 파일이 속한 pipeline/ 의 상위
+        self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.mp_db_path = os.path.join(self.base_dir, 'db', 'priceDB.db')
         self.yy_db_path = os.path.join(self.base_dir, 'db', 'yongyuk.db')
         self.script_js_path = os.path.join(self.base_dir, 'html', 'js', 'script.js')
-        
-    def run_crawler(self, crawler_script, args=None):
-        """크롤러 스크립트 실행"""
+
+    def run_module(self, module_name, args=None):
+        """파이썬 모듈을 -m 으로 실행 (cwd=프로젝트 루트). 예: 'crawlers.mpdbBring'"""
         try:
-            cmd = [sys.executable, crawler_script]
+            cmd = [sys.executable, '-m', module_name]
             if args:
                 cmd.extend(args)
-                
+
             print(f"🕷️  {' '.join(cmd)} 실행 중...")
-            # Run subprocess without capture_output so child process stdout/stderr
-            # are forwarded to this console (shows crawler logs in real time).
             result = subprocess.run(cmd, cwd=self.base_dir)
             if result.returncode == 0:
-                print(f"✅ {crawler_script} 실행 완료")
+                print(f"✅ {module_name} 실행 완료")
                 return True
             else:
-                print(f"❌ {crawler_script} 실행 실패 (returncode={result.returncode})")
+                print(f"❌ {module_name} 실행 실패 (returncode={result.returncode})")
                 return False
         except Exception as e:
-            print(f"❌ {crawler_script} 실행 중 오류: {e}")
+            print(f"❌ {module_name} 실행 중 오류: {e}")
             return False
     
     def get_amount_data(self, db_path):
@@ -175,8 +174,8 @@ class DashboardAutomator:
         # 1. 크롤러 실행 (선택적)
         if run_crawlers:
             print("1️⃣  웹 크롤링 단계")
-            mp_success = self.run_crawler('mpdbBring.py')
-            yy_success = self.run_crawler('yydbBring.py')
+            mp_success = self.run_module('crawlers.mpdbBring')
+            yy_success = self.run_module('crawlers.yydbBring')
             
             if not (mp_success and yy_success):
                 print("⚠️  크롤링 실패, 기존 데이터로 진행합니다.")
@@ -230,9 +229,9 @@ def main():
     automator = DashboardAutomator(year=args.year)
     success = automator.run_full_automation(run_crawlers=not args.no_crawl)
 
-    # average.py 실행하여 평균 예가율 JSON 업데이트
-    print('\n📊 average.py 실행 (DB -> JSON)')
-    avg_success = automator.run_crawler('average.py', args=['--year', automator.year])
+    # average 모듈 실행하여 평균 예가율 JSON 업데이트
+    print('\n📊 pipeline.average 실행 (DB -> JSON)')
+    avg_success = automator.run_module('pipeline.average', args=['--year', automator.year])
     if avg_success:
         print('✅ JSON 업데이트 완료')
     else:

@@ -1,128 +1,90 @@
-# 📊 대시보드 자동 업데이트 시스템
+# 대시보드 자동 업데이트 시스템
 
-이 시스템은 웹 크롤링, 데이터 집계, 대시보드 업데이트를 완전 자동화합니다.
+코레일 / 나라장터 입찰 데이터를 크롤링하고 SQLite 에 적재한 뒤, 웹 대시보드(`html/`)를 자동으로 갱신합니다.
 
-## 🚀 주요 기능
-
-- **자동 웹 크롤링**: `mpdbBring.py`, `yydbBring.py` 자동 실행
-- **데이터 집계**: SQLite 데이터베이스에서 데이터 자동 집계
-- **대시보드 업데이트**: `script.js` 파일의 const 변수 자동 업데이트
-- **스케줄링 지원**: Windows 작업 스케줄러 연동 가능
-- **백업 기능**: 기존 데이터 백업 후 업데이트
-
-## 📁 파일 구조
+## 폴더 구조
 
 ```
-├── auto_update_dashboard.py    # 메인 자동화 스크립트
-├── scheduled_update.py         # 스케줄러용 실행 스크립트
-├── run_update.bat             # Windows 배치 파일 (GUI)
-├── config.ini                 # 설정 파일
-├── mpdbBring.py              # 물품 크롤러
-├── yydbBring.py              # 용역 크롤러
-├── updateAmount.py           # 수량 집계 (참고용)
-├── updatePercent.py          # 비율 집계 (참고용)
-├── db/
-│   ├── priceDB.db           # 물품 데이터베이스
-│   └── yongyuk.db           # 용역 데이터베이스
-└── html/
-    ├── script.js            # 대시보드 JavaScript 파일
-    ├── index.html           # 대시보드 메인 페이지
-    └── ...
+crawlers/                  # Selenium 크롤러
+  mpdbBring.py             # 코레일 물품
+  yydbBring.py             # 코레일 용역
+  g2bBring.py              # 나라장터 (G2B)
+  expectedBring.py         # 낙찰가 추출 헬퍼
+pipeline/                  # 자동화 / 집계
+  auto_update_dashboard.py # 메인 자동화 (DashboardAutomator)
+  scheduled_update.py      # Windows 작업 스케줄러용 진입점
+  count.py                 # 비율 카운팅 헬퍼
+  average.py               # 10일 단위 평균 예가율 -> JSON
+  g2b_generate_data.py     # g2b_*.db -> g2bRateData.json
+db/                        # SQLite DB + 액세스 모듈
+  db_module.py             # PriceDB (코레일)
+  g2b_module.py            # G2bDB (나라장터)
+  *.db
+html/                      # 정적 대시보드
+docs/                      # 스펙 / 플랜 문서
+run_update.bat             # 윈도우 GUI 메뉴 (배치)
+requirements.txt
 ```
 
-## 🔧 사용법
+## 사용법
 
-### 1. 간단한 실행 (Windows)
+모든 진입점은 **프로젝트 루트에서 모듈 형태로 실행**합니다 (`-m` 옵션).
+
+### 윈도우 GUI 메뉴
 
 ```cmd
-# 배치 파일 실행 (GUI 메뉴)
 run_update.bat
 ```
 
-### 2. 명령줄 실행
+### 명령줄
 
-```cmd
-# 전체 자동화 (크롤링 + 집계 + 업데이트)
-python auto_update_dashboard.py
+```bash
+# 전체 자동화 (크롤링 + 집계 + script.js + JSON 갱신)
+python -m pipeline.auto_update_dashboard
 
-# 기존 데이터만으로 업데이트 (크롤링 제외)
-python auto_update_dashboard.py --no-crawl
+# 기존 데이터로만 집계 (크롤링 스킵)
+python -m pipeline.auto_update_dashboard --no-crawl
 
-# 특정 연도 데이터 업데이트
-python auto_update_dashboard.py --year 2024
+# 특정 연도 집계
+python -m pipeline.auto_update_dashboard --year 2024
 
-# 도움말
-python auto_update_dashboard.py --help
+# 나라장터 크롤러 (별도 파이프라인)
+python -m crawlers.g2bBring
+
+# 나라장터 비율 JSON 생성
+python -m pipeline.g2b_generate_data
 ```
 
-### 3. 스케줄 자동화
+### 스케줄러 자동화
 
-Windows 작업 스케줄러에서 `scheduled_update.py`를 등록하면 자동 실행됩니다.
+Windows 작업 스케줄러:
+- 프로그램: `python`
+- 인수: `-m pipeline.scheduled_update`
+- 시작 위치: 프로젝트 루트 경로
 
-**스케줄러 등록 예시:**
-1. Windows 작업 스케줄러 열기
-2. 기본 작업 만들기
-3. 프로그램: `python`
-4. 인수: `scheduled_update.py`
-5. 시작 위치: `C:\Users\jse\Desktop\vscode\ReadData`
-6. 트리거: 매일 오전 9시
+## 의존성
 
-## ⚙️ 설정
+- Python 3.10+
+- selenium, pandas, beautifulsoup4, chromedriver-autoinstaller, requests
+- Chrome 브라우저 (headless)
+- SQLite (stdlib)
 
-`config.ini` 파일에서 다양한 설정을 변경할 수 있습니다:
+```bash
+pip install -r requirements.txt
+```
 
-- 크롤링 범위 조정
-- 데이터베이스 경로 변경
-- 로그 레벨 설정
-- 백업 옵션 등
+## 데이터 흐름 (코레일)
 
-## 📝 작업 과정
+1. `crawlers.mpdbBring` / `crawlers.yydbBring` → `db/priceDB.db` / `db/yongyuk.db`
+2. `pipeline.auto_update_dashboard` → 월별·예가율범위별 집계 → `html/js/script.js` 의 `yValamt{연도}` / `yValrate{연도}` 배열 갱신
+3. `pipeline.average` → `html/data/avgRateDataMp.json` / `avgRateDataYy.json`
 
-1. **웹 크롤링 단계**
-   - `mpdbBring.py`: 물품 입찰 정보 크롤링 → `priceDB.db`
-   - `yydbBring.py`: 용역 입찰 정보 크롤링 → `yongyuk.db`
+## 데이터 흐름 (나라장터)
 
-2. **데이터 집계 단계**
-   - 각 데이터베이스에서 월별/예가율별 데이터 집계
-   - 수량 데이터와 비율 데이터 계산
+1. `crawlers.g2bBring` → `db/g2b_<연도>.db` (GitHub 100MB 제한 회피용 연도별 분할)
+2. `pipeline.g2b_generate_data` → `html/data/g2bRateData.json` (모든 연도 DB 합산)
+3. `html/g2b.html` / `g2b_detail.html` / `g2b_ratio.html` 가 위 JSON / DB 를 표시
 
-3. **대시보드 업데이트 단계**
-   - `script.js` 파일의 const 변수들 자동 업데이트
-   - `yValamt{연도}`, `yValrate{연도}` 등 업데이트
+## 로그
 
-## 🔍 로그 및 모니터링
-
-- 실행 로그: `dashboard_update.log`
-- 에러 발생 시 상세 정보 기록
-- 각 단계별 진행 상황 표시
-
-## 🛠️ 문제 해결
-
-### 크롤링 실패 시
-- 네트워크 연결 확인
-- Chrome 드라이버 업데이트
-- 웹사이트 구조 변경 여부 확인
-
-### 데이터베이스 오류 시
-- 데이터베이스 파일 권한 확인
-- 디스크 공간 확인
-- 백업 파일에서 복구
-
-### script.js 업데이트 실패 시
-- 파일 권한 확인
-- 기존 백업에서 복구
-- 수동으로 변수 확인
-
-## 기술 지원
-
-시스템 관련 문의나 오류 발생 시:
-1. 로그 파일 (`dashboard_update.log`) 확인
-2. 에러 메시지 및 로그와 함께 문의
-3. 실행 환경 정보 (Python 버전, OS 등) 제공
-
-## 업그레이드
-
-새로운 기능이나 버그 수정이 있을 때:
-1. 기존 설정 파일 백업
-2. 새 파일들로 교체
-3. 설정 파일 복원 및 확인
+`dashboard_update.log` (스케줄러 실행 시 생성), `g2b_crawl.log` (g2bBring 실행 시).

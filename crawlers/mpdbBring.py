@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 import pandas as pd
 from db.db_module import *
 import chromedriver_autoinstaller
-from expectedBring import *
+from crawlers.expectedBring import *
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -14,8 +14,8 @@ options = webdriver.ChromeOptions()
 options.add_argument("headless")
 column = ['날짜', '기초가', '예가', '투찰가' , '공고번호']
 
-# init DB
-base_dir = os.path.dirname(__file__)
+# init DB (프로젝트 루트 = 이 파일이 속한 crawlers/ 의 상위)
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 db_path = os.path.join(base_dir, 'db', 'priceDB.db')
 conn = sqlite3.connect(db_path)
 price_db = PriceDB(db_path)
