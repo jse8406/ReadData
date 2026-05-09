@@ -166,19 +166,25 @@ class DashboardAutomator:
             print(f"❌ script.js 업데이트 오류: {e}")
             return False
     
-    def run_full_automation(self, run_crawlers=True):
+    def run_full_automation(self, run_crawlers=True, run_g2b=True):
         """전체 자동화 프로세스 실행"""
         print(f"🚀 대시보드 자동 업데이트 시작 (연도: {self.year})")
         print("=" * 50)
-        
+
         # 1. 크롤러 실행 (선택적)
         if run_crawlers:
             print("1️⃣  웹 크롤링 단계")
             mp_success = self.run_module('crawlers.mpdbBring')
             yy_success = self.run_module('crawlers.yydbBring')
-            
+
             if not (mp_success and yy_success):
-                print("⚠️  크롤링 실패, 기존 데이터로 진행합니다.")
+                print("⚠️  코레일 크롤링 실패, 기존 데이터로 진행합니다.")
+
+            if run_g2b:
+                print("\n1️⃣ -b  나라장터(g2b) 증분 크롤링")
+                g2b_success = self.run_module('crawlers.g2bBring', args=['--incremental'])
+                if not g2b_success:
+                    print("⚠️  나라장터 크롤링 실패, 계속 진행합니다.")
         else:
             print("1️⃣  웹 크롤링 단계 건너뜀 (기존 데이터 사용)")
         
@@ -223,19 +229,33 @@ def main():
                        help='업데이트할 연도 (기본값: 현재 연도)')
     parser.add_argument('--no-crawl', action='store_true',
                        help='크롤링 건너뛰고 기존 데이터만 사용')
+    parser.add_argument('--no-g2b', action='store_true',
+                       help='나라장터(g2b) 크롤링/집계 건너뛰기 (코레일만 처리)')
 
     args = parser.parse_args()
 
     automator = DashboardAutomator(year=args.year)
-    success = automator.run_full_automation(run_crawlers=not args.no_crawl)
+    success = automator.run_full_automation(
+        run_crawlers=not args.no_crawl,
+        run_g2b=not args.no_g2b,
+    )
 
-    # average 모듈 실행하여 평균 예가율 JSON 업데이트
-    print('\n📊 pipeline.average 실행 (DB -> JSON)')
+    # 코레일 평균 예가율 JSON
+    print('\n📊 pipeline.average 실행 (코레일 DB -> JSON)')
     avg_success = automator.run_module('pipeline.average', args=['--year', automator.year])
     if avg_success:
-        print('✅ JSON 업데이트 완료')
+        print('✅ 코레일 JSON 업데이트 완료')
     else:
-        print('⚠️  JSON 업데이트 실패')
+        print('⚠️  코레일 JSON 업데이트 실패')
+
+    # 나라장터 비율 JSON
+    if not args.no_g2b:
+        print('\n📊 pipeline.g2b_generate_data 실행 (나라장터 DB -> JSON)')
+        g2b_json_success = automator.run_module('pipeline.g2b_generate_data')
+        if g2b_json_success:
+            print('✅ 나라장터 JSON 업데이트 완료')
+        else:
+            print('⚠️  나라장터 JSON 업데이트 실패')
 
     sys.exit(0 if success else 1)
 

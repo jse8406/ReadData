@@ -39,20 +39,21 @@ run_update.bat
 ### 명령줄
 
 ```bash
-# 전체 자동화 (크롤링 + 집계 + script.js + JSON 갱신)
+# 전체 자동화 (코레일 mp/yy + 나라장터 g2b 증분 크롤 + 집계 + script.js + JSON 갱신)
 python -m pipeline.auto_update_dashboard
 
-# 기존 데이터로만 집계 (크롤링 스킵)
+# 기존 데이터로만 집계 (모든 크롤링 스킵)
 python -m pipeline.auto_update_dashboard --no-crawl
 
-# 특정 연도 집계
+# 나라장터 스킵 (코레일만 처리)
+python -m pipeline.auto_update_dashboard --no-g2b
+
+# 특정 연도 집계 (코레일 집계 연도. 나라장터는 항상 증분)
 python -m pipeline.auto_update_dashboard --year 2024
 
-# 나라장터 크롤러 (별도 파이프라인)
-python -m crawlers.g2bBring
-
-# 나라장터 비율 JSON 생성
-python -m pipeline.g2b_generate_data
+# 나라장터 크롤러를 단독 호출하고 싶을 때
+python -m crawlers.g2bBring                  # 4/1~today 전체 재스캔 (느림)
+python -m crawlers.g2bBring --incremental    # DB 최신일 ~ today (빠름, 기본 권장)
 ```
 
 ### 스케줄러 자동화

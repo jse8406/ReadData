@@ -8,6 +8,7 @@ import sys
 import time
 import json
 import os
+import glob
 import sqlite3
 import argparse
 import logging
@@ -482,8 +483,28 @@ def log(msg, log_file=None):
         log_file.flush()
 
 
+def _max_date_in_dbs(db_dir):
+    """모든 g2b_*.db 에서 가장 최근 date(YYYY/MM/DD) 반환. 없으면 None."""
+    latest = None
+    for path in sorted(glob.glob(os.path.join(db_dir, "g2b_*.db"))):
+        try:
+            conn = sqlite3.connect(path)
+            cur = conn.cursor()
+            cur.execute("SELECT MAX(date) FROM bid_results")
+            row = cur.fetchone()
+            conn.close()
+            if row and row[0]:
+                if latest is None or row[0] > latest:
+                    latest = row[0]
+        except sqlite3.OperationalError:
+            continue
+    return latest
+
+
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--incremental', action='store_true',
+                        help='증분 모드: DB 의 가장 최근 date 부터 오늘까지만 크롤')
     parser.add_argument('--test', action='store_true', help='테스트 모드: 특정 날짜 범위, 제한 건수')
     parser.add_argument('--test-date', type=str, default='20260408', help='테스트 시작 날짜 (기본: 20260408)')
     parser.add_argument('--test-end-date', type=str, default='', help='테스트 종료 날짜 (미지정 시 시작일과 동일)')
@@ -499,6 +520,16 @@ def main():
         start_date = datetime.strptime(args.test_date, "%Y%m%d")
         end_date = datetime.strptime(args.test_end_date, "%Y%m%d") if args.test_end_date else start_date
         month_ranges = [(start_date.strftime("%Y%m%d"), end_date.strftime("%Y%m%d"))]
+    elif args.incremental:
+        end_date = datetime.now()
+        latest = _max_date_in_dbs(db_dir)
+        if latest:
+            # 'YYYY/MM/DD' → datetime, 같은 날부터 재스캔(소폭 중복은 PK 로 자동 차단)
+            start_date = datetime.strptime(latest, "%Y/%m/%d")
+        else:
+            # DB 가 비어 있으면 최근 7일
+            start_date = end_date - timedelta(days=7)
+        month_ranges = generate_month_ranges(start_date, end_date) if start_date < end_date else [(start_date.strftime("%Y%m%d"), end_date.strftime("%Y%m%d"))]
     else:
         end_date = datetime.now()
         start_date = datetime(2026, 4, 1)
