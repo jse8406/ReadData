@@ -1,6 +1,7 @@
 
 
 import sqlite3
+import itertools
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import pandas as pd
@@ -19,7 +20,16 @@ print(maximum)
 price_db = PriceDB(db_path)
 price_db.init_db()
 start_num = int(maximum.values[0,0] + 1)
-for i in range(500):
+previous_count = conn.execute("SELECT COUNT(*) FROM price_set").fetchone()[0]
+for i in itertools.count():
+    if i > 0 and i % 500 == 0:
+        current_count = conn.execute("SELECT COUNT(*) FROM price_set").fetchone()[0]
+        if current_count == previous_count:
+            print(f"{i}건 확인 구간에서 신규 용역 데이터가 없어 크롤링을 종료합니다.")
+            break
+        print(f"{i}건 확인 완료, 신규 용역 데이터가 있어 다음 구간을 계속 수집합니다.")
+        previous_count = current_count
+
     try:
         url = f"https://ebid.korail.com/goods/printOpen.do?gubun=1&zzbidinv={start_num+i}-00&zzstnum=00"
         driver.get(url)
@@ -64,3 +74,6 @@ for i in range(500):
                 print(start_num + i, date, base_price, predict_price, bid_price, min_rate)
     except Exception as e:
         print(f"[ERROR] {start_num + i}: {e}")
+
+driver.quit()
+conn.close()

@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+import itertools
 import pandas as pd
 from db.db_module import *
 import chromedriver_autoinstaller
@@ -28,7 +29,16 @@ driver = webdriver.Chrome(options=options)
 wait = WebDriverWait(driver, 10)  # 최대 10초까지 대기
 # 9247000 ~ 끝
 # Search and get Data
-for i in range(500):
+previous_count = conn.execute("SELECT COUNT(*) FROM price_set").fetchone()[0]
+for i in itertools.count():
+    if i > 0 and i % 500 == 0:
+        current_count = conn.execute("SELECT COUNT(*) FROM price_set").fetchone()[0]
+        if current_count == previous_count:
+            print(f"{i}건 확인 구간에서 신규 물품 데이터가 없어 크롤링을 종료합니다.")
+            break
+        print(f"{i}건 확인 완료, 신규 물품 데이터가 있어 다음 구간을 계속 수집합니다.")
+        previous_count = current_count
+
     url = f"https://ebid.korail.com/goods/printOpen.do?gubun=1&zzbidinv={start_num + i}-00&zzstnum=00"
     driver.get(url)
     try:
@@ -66,7 +76,8 @@ for i in range(500):
         continue  # 오류가 발생하더라도 다음 루프 계속 진행
 
 # Selenium 종료
-#driver.quit()
+driver.quit()
+conn.close()
 
 # https://ebid.korail.com/goods/printOpen.do?gubun=1&zzbidinv=9242021-00&zzstnum=00 여기서 구분에 페이지 넘버, zzbidinv가 입찰공보 번호-00, zzstnum이 차수
 
